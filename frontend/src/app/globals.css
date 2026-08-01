@@ -1,0 +1,314 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-950 text-slate-100 font-sans antialiased selection:bg-blue-500 selection:text-white transition-colors duration-200;
+  }
+}
+
+.glass-card {
+  background: rgba(17, 24, 39, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s ease;
+}
+
+/* =========================================================
+   AUTHENTIC RESUME PAPER SHEET (Independent of Theme)
+   Guarantees the resume preview is ALWAYS a clean white paper sheet 
+   with crisp high-contrast black/slate text in both Dark & Light mode.
+   ========================================================= */
+#resume-preview {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.15) !important;
+}
+
+#resume-preview h2,
+#resume-preview h3,
+#resume-preview strong,
+#resume-preview p,
+#resume-preview span,
+#resume-preview li,
+#resume-preview div {
+  color: #0f172a !important;
+}
+
+#resume-preview .text-blue-700,
+#resume-preview .text-blue-600 {
+  color: #1d4ed8 !important;
+}
+
+#resume-preview .border-slate-900,
+#resume-preview .border-slate-300 {
+  border-color: #334155 !important;
+}
+
+/* =========================================================
+   LIGHT THEME OVERRIDES
+   Ensures ALL text, inputs, tables, badges, cards & sub-boxes 
+   adjust seamlessly for maximum legibility and contrast in Light Mode.
+   ========================================================= */
+
+html.light body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html.light .glass-card {
+  background: #ffffff !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+}
+
+html.light header {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light aside {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Text Visibility Overrides */
+html.light .text-white,
+html.light .text-slate-100,
+html.light .text-slate-200,
+html.light .text-slate-300 {
+  color: #0f172a !important;
+}
+
+html.light .text-slate-400,
+html.light .text-slate-500 {
+  color: #475569 !important;
+}
+
+html.light .text-slate-600 {
+  color: #64748b !important;
+}
+
+/* Background Visibility Overrides */
+html.light .bg-slate-950,
+html.light .bg-slate-900 {
+  background-color: #ffffff !important;
+}
+
+html.light .bg-slate-950\/80,
+html.light .bg-slate-950\/60,
+html.light .bg-slate-900\/80,
+html.light .bg-slate-900\/60,
+html.light .bg-slate-900\/50,
+html.light .bg-slate-900\/40,
+html.light .bg-slate-900\/30,
+html.light .bg-slate-900\/20,
+html.light .bg-slate-900\/70 {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light .bg-slate-800 {
+  background-color: #f1f5f9 !important;
+}
+
+html.light .bg-slate-800\/60,
+html.light .bg-slate-800\/40,
+html.light .bg-slate-800\/20 {
+  background-color: #f8fafc !important;
+}
+
+/* Sub-box text overrides inside candidate cards & metrics */
+html.light .bg-slate-900\/70 *,
+html.light .bg-slate-900\/60 *,
+html.light .bg-slate-900\/50 *,
+html.light .bg-slate-900\/40 *,
+html.light .bg-slate-900\/30 *,
+html.light .bg-slate-900\/20 * {
+  color: #0f172a !important;
+}
+
+html.light .bg-slate-900\/70 .text-slate-400,
+html.light .bg-slate-900\/60 .text-slate-400,
+html.light .bg-slate-900\/50 .text-slate-400,
+html.light .bg-slate-900\/40 .text-slate-400 {
+  color: #64748b !important;
+}
+
+/* Border Visibility Overrides */
+html.light .border-slate-800,
+html.light .border-slate-700,
+html.light .border-slate-800\/60,
+html.light .border-slate-700\/50 {
+  border-color: #e2e8f0 !important;
+}
+
+/* Input, Select & Textarea Legibility */
+html.light input,
+html.light select,
+html.light textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Header Dropdown Menu Legibility in Light Mode */
+html.light .group-hover\:block,
+html.light .absolute.right-0.mt-1 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+}
+
+html.light .group-hover\:block button,
+html.light .absolute.right-0.mt-1 button {
+  color: #334155 !important;
+}
+
+html.light .group-hover\:block button:hover,
+html.light .absolute.right-0.mt-1 button:hover {
+  background-color: #f1f5f9 !important;
+  color: #2563eb !important;
+}
+
+/* Table Legibility in Light Mode */
+html.light table {
+  color: #0f172a !important;
+}
+
+html.light thead {
+  background-color: #f1f5f9 !important;
+  color: #334155 !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light tr {
+  border-color: #e2e8f0 !important;
+}
+
+html.light tr:hover {
+  background-color: #f8fafc !important;
+}
+
+/* Light Theme Badges, Tips & Alerts High Contrast */
+html.light .bg-indigo-950,
+html.light .bg-indigo-950\/15,
+html.light .bg-indigo-950\/30,
+html.light .bg-indigo-900\/40 {
+  background-color: #e0e7ff !important;
+  border-color: #c7d2fe !important;
+}
+html.light .bg-indigo-950 *,
+html.light .bg-indigo-950\/15 *,
+html.light .bg-indigo-950\/30 *,
+html.light .bg-indigo-900\/40 * {
+  color: #3730a3 !important;
+}
+
+html.light .bg-emerald-950,
+html.light .bg-emerald-950\/20,
+html.light .bg-emerald-900\/40 {
+  background-color: #d1fae5 !important;
+  border-color: #a7f3d0 !important;
+}
+html.light .bg-emerald-950 *,
+html.light .bg-emerald-950\/20 *,
+html.light .bg-emerald-900\/40 * {
+  color: #065f46 !important;
+}
+
+html.light .bg-rose-950,
+html.light .bg-rose-950\/20,
+html.light .bg-rose-950\/30,
+html.light .bg-rose-900\/40,
+html.light .bg-rose-950\/10 {
+  background-color: #ffe4e6 !important;
+  border-color: #fecdd3 !important;
+}
+html.light .bg-rose-950 *,
+html.light .bg-rose-950\/20 *,
+html.light .bg-rose-950\/30 *,
+html.light .bg-rose-900\/40 *,
+html.light .bg-rose-950\/10 * {
+  color: #9f1239 !important;
+}
+
+html.light .bg-amber-950,
+html.light .bg-amber-950\/20,
+html.light .bg-amber-950\/30,
+html.light .bg-amber-900\/40 {
+  background-color: #fef3c7 !important;
+  border-color: #fde68a !important;
+}
+html.light .bg-amber-950 *,
+html.light .bg-amber-950\/20 *,
+html.light .bg-amber-950\/30 *,
+html.light .bg-amber-900\/40 * {
+  color: #92400e !important;
+}
+
+html.light .bg-blue-950,
+html.light .bg-blue-900\/40,
+html.light .bg-blue-900\/50 {
+  background-color: #dbeafe !important;
+  border-color: #bfdbfe !important;
+}
+html.light .bg-blue-950 *,
+html.light .bg-blue-900\/40 *,
+html.light .bg-blue-900\/50 * {
+  color: #1e40af !important;
+}
+
+html.light .bg-violet-950,
+html.light .bg-violet-900\/40 {
+  background-color: #f3e8ff !important;
+  border-color: #e9d5ff !important;
+}
+html.light .bg-violet-950 *,
+html.light .bg-violet-900\/40 * {
+  color: #6b21a8 !important;
+}
+
+/* Light Mode Navigation Active Items */
+html.light nav a.bg-blue-600\/15,
+html.light nav a.bg-blue-600\/10 {
+  background-color: #dbeafe !important;
+  color: #1d4ed8 !important;
+  border-color: #93c5fd !important;
+}
+
+html.light nav a:hover:not(.bg-blue-600\/15) {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 9999px;
+}
+html.light ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+
+
+

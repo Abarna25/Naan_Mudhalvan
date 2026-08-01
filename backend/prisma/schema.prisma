@@ -1,0 +1,234 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id               String         @id @default(uuid())
+  email            String         @unique
+  passwordHash     String
+  name             String
+  role             String         @default("STUDENT") // STUDENT | FACULTY | PLACEMENT_OFFICER | ADMIN
+  department       String?
+  naanMudhalvanId  String?        @unique
+  emailVerified    Boolean        @default(false)
+  avatarUrl        String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  profile          Profile?
+  notifications    Notification[]
+  auditLogs        AuditLog[]
+}
+
+model Profile {
+  id                 String           @id @default(uuid())
+  userId             String           @unique
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio                String?
+  cgpa               Float            @default(0.0)
+  graduationYear     Int              @default(2025)
+  phone              String?
+  collegeName        String           @default("Government Engineering College, TN")
+  githubUsername     String?
+  leetcodeUsername   String?
+  hackerrankUsername String?
+  linkedinUrl        String?
+  portfolioSlug      String?          @unique
+  isPublic           Boolean          @default(true)
+  profileCompletion  Int              @default(30)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  skills             StudentSkill[]
+  projects           Project[]
+  certifications     Certification[]
+  achievements       Achievement[]
+  internships        Internship[]
+  codingProfile      CodingProfile?
+  employmentScores   EmploymentScore[]
+  skillGaps          SkillGap[]
+  roadmaps           Roadmap[]
+  portfolioVersions  PortfolioVersion[]
+  resumeVersions     ResumeVersion[]
+  recommendations    Recommendation[]
+}
+
+model Skill {
+  id        String         @id @default(uuid())
+  name      String         @unique
+  category  String         @default("General")
+  students  StudentSkill[]
+}
+
+model StudentSkill {
+  id             String   @id @default(uuid())
+  profileId      String
+  profile        Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  skillId        String
+  skill          Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  proficiency    Int      @default(70)
+  verifiedSource String   @default("Self Verified")
+
+  @@unique([profileId, skillId])
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  profileId   String
+  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  techStack   String   
+  githubUrl   String?
+  liveUrl     String?
+  stars       Int      @default(0)
+  status      String   @default("PENDING") // PENDING | APPROVED | REJECTED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Certification {
+  id           String   @id @default(uuid())
+  profileId    String
+  profile      Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  title        String
+  issuer       String
+  issueDate    String?
+  credentialId String?
+  fileUrl      String?
+  ocrExtracted Boolean  @default(false)
+  isDuplicate  Boolean  @default(false)
+  status       String   @default("PENDING") // PENDING | APPROVED | REJECTED
+  createdAt    DateTime @default(now())
+}
+
+model Achievement {
+  id          String   @id @default(uuid())
+  profileId   String
+  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  title       String
+  category    String   @default("Hackathon")
+  description String
+  date        String
+  issuer      String?
+}
+
+model Internship {
+  id          String   @id @default(uuid())
+  profileId   String
+  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  company     String
+  role        String
+  startDate   String
+  endDate     String
+  description String
+}
+
+model CodingProfile {
+  id               String   @id @default(uuid())
+  profileId        String   @unique
+  profile          Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  leetcodeSolved   Int      @default(0)
+  leetcodeRating   Int      @default(0)
+  hackerrankStars  Int      @default(0)
+  githubRepos      Int      @default(0)
+  githubStars      Int      @default(0)
+  githubCommits    Int      @default(0)
+  updatedAt        DateTime @updatedAt
+}
+
+model EmploymentScore {
+  id                     String   @id @default(uuid())
+  profileId              String
+  profile                Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  overallScore           Int      @default(75)
+  technicalReadiness     Int      @default(75)
+  projectStrength        Int      @default(80)
+  codingReadiness        Int      @default(70)
+  communicationReadiness Int      @default(72)
+  placementProbability   Int      @default(78)
+  explainabilityJson     String   
+  createdAt              DateTime @default(now())
+}
+
+model SkillGap {
+  id                       String   @id @default(uuid())
+  profileId                String
+  profile                  Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  targetRole               String
+  missingSkillsJson        String   
+  recommendedResourcesJson String   
+  projectIdeasJson         String   
+  timelineMonths           Int      @default(3)
+  createdAt                DateTime @default(now())
+}
+
+model Roadmap {
+  id                    String   @id @default(uuid())
+  profileId             String
+  profile               Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  targetRole            String
+  weeklyPlanJson        String   
+  monthlyGoalsJson      String   
+  certificationPlanJson String  
+  createdAt             DateTime @default(now())
+}
+
+model PortfolioVersion {
+  id          String   @id @default(uuid())
+  profileId   String
+  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  theme       String   @default("modern")
+  customCss   String?
+  publishedAt DateTime @default(now())
+  slug        String   @unique
+}
+
+model ResumeVersion {
+  id         String   @id @default(uuid())
+  profileId  String
+  profile    Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  targetRole String   @default("Software Engineer")
+  atsScore   Int      @default(85)
+  resumeJson String   
+  fileUrl    String?
+  createdAt  DateTime @default(now())
+}
+
+model Recommendation {
+  id           String   @id @default(uuid())
+  profileId    String
+  profile      Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  type         String   
+  title        String
+  description  String
+  actionUrl    String?
+  impactPoints Int      @default(5)
+  createdAt    DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String   @default("INFO")
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  details   String
+  ipAddress String?
+  createdAt DateTime @default(now())
+}
