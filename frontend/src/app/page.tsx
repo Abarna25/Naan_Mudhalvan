@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
 import {
@@ -26,6 +26,21 @@ export default function LandingLoginPage() {
   const [institutionalId, setInstitutionalId] = useState('7376221CS101');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'light') {
+      root.classList.remove('dark');
+      root.classList.add('light');
+      document.body.style.backgroundColor = '#f8fafc';
+      document.body.style.color = '#0f172a';
+    } else {
+      root.classList.remove('light');
+      root.classList.add('dark');
+      document.body.style.backgroundColor = '#020617';
+      document.body.style.color = '#f8fafc';
+    }
+  }, [theme]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +69,7 @@ export default function LandingLoginPage() {
       } else {
         setError(json.error || 'Authentication failed. Please check credentials and unique ID.');
       }
-    } catch (e) {
+    } catch {
       setAuth(
         {
           id: 'demo-id',
