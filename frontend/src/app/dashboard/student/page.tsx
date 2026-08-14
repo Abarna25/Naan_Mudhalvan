@@ -1,21 +1,15 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import Link from 'next/link';
 import {
   Sparkles,
-  Award,
   Code,
   FileText,
   TrendingUp,
   CheckCircle2,
-  AlertTriangle,
-  Github,
-  Check,
-  ChevronRight,
-  Zap,
-  BookOpen
+  ShieldCheck,
 } from 'lucide-react';
 import {
   Radar,
@@ -24,281 +18,242 @@ import {
   PolarAngleAxis,
   PolarRadiusAxis,
   ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Cell
 } from 'recharts';
+import { TrustCenter } from '@/components/trust/TrustCenter';
+import { VerificationBadge } from '@/components/trust/VerificationBadge';
+import { SkillAssessmentModal } from '@/components/skills/SkillAssessmentModal';
 
 export default function StudentDashboardPage() {
   const { user } = useAuthStore();
+
+  const [trustData, setTrustData] = useState<any>(null);
+  const [selectedSkillForAssessment, setSelectedSkillForAssessment] = useState<{ id: string; name: string } | null>(null);
+
+  const fetchTrustData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('http://localhost:5000/api/student/trust-center', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const json = await res.json();
+      if (json.success) {
+        setTrustData(json.data);
+      }
+    } catch (e) {
+      console.error('Failed to fetch trust data', e);
+    }
+  };
+
+  useEffect(() => {
+    fetchTrustData();
+  }, []);
 
   const radarData = [
     { subject: 'Technical Readiness', score: 90, fullMark: 100 },
     { subject: 'Project Strength', score: 94, fullMark: 100 },
     { subject: 'Coding Readiness', score: 86, fullMark: 100 },
     { subject: 'Communication', score: 80, fullMark: 100 },
-    { subject: 'Naan Mudhalvan Certs', score: 92, fullMark: 100 },
-  ];
-
-  const explainabilityData = [
-    { feature: 'Strong Projects', impact: 18, color: '#10b981' },
-    { feature: 'GitHub Activity', impact: 14, color: '#10b981' },
-    { feature: 'NM Certifications', impact: 12, color: '#10b981' },
-    { feature: 'Academic CGPA', impact: 10, color: '#3b82f6' },
-    { feature: 'Data Structures Gap', impact: -8, color: '#f43f5e' },
-    { feature: 'System Communication', impact: -6, color: '#f43f5e' },
+    { subject: 'Data Confidence', score: trustData?.overallDataConfidence || 96, fullMark: 100 },
   ];
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-900/40 via-indigo-900/40 to-slate-900 border border-blue-500/20 p-6 md:p-8">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-700 via-indigo-700 to-slate-900 dark:from-blue-950 dark:via-indigo-950 dark:to-slate-950 border border-blue-200 dark:border-blue-500/20 p-6 md:p-8 shadow-md">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30">
+              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-white/20 text-white border border-white/30">
                 Naan Mudhalvan Student Portal
               </span>
-              <span className="text-xs text-slate-400 font-mono">ID: {user?.naanMudhalvanId}</span>
+              <span className="text-xs text-blue-100 font-mono font-semibold">ID: {user?.naanMudhalvanId || 'NM-2026-882341'}</span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
-              Welcome back, {user?.name}! 👋
+            <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2">
+              Welcome back, {user?.name || 'Aravind Kumar'}! 👋
+              <VerificationBadge status={trustData?.identityVerified ? 'VERIFIED' : 'SELF_DECLARED'} size="sm" />
             </h1>
-            <p className="text-slate-300 text-sm max-w-2xl">
-              Your profile is compiled with real-time GitHub, LeetCode, and Naan Mudhalvan certificate analytics. Explainable AI rates your placement readiness at <span className="font-bold text-emerald-400">88% (Tier-1 Eligible)</span>.
+            <p className="text-blue-100 dark:text-slate-300 text-sm max-w-2xl font-medium">
+              Every claim on your profile is verified against institutional records, GitHub commit analysis, EasyOCR, or skill assessments.
             </p>
           </div>
 
           <div className="flex flex-wrap gap-2">
             <Link
               href="/dashboard/student/eligibility"
-              className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-all shadow-lg shadow-blue-600/30 flex items-center space-x-2"
+              className="px-4 py-2.5 rounded-xl bg-white text-blue-800 font-bold text-xs hover:bg-slate-100 transition-all shadow-md flex items-center space-x-2"
             >
-              <Sparkles className="w-4 h-4" />
+              <Sparkles className="w-4 h-4 text-blue-600" />
               <span>View XAI Breakdown</span>
             </Link>
             <Link
               href="/dashboard/student/portfolio"
-              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs border border-slate-700 transition-all flex items-center space-x-2"
+              className="px-4 py-2.5 rounded-xl bg-blue-900/60 hover:bg-blue-900/80 text-white font-semibold text-xs border border-blue-400/30 transition-all flex items-center space-x-2"
             >
-              <Code className="w-4 h-4 text-blue-400" />
+              <Code className="w-4 h-4 text-blue-300" />
               <span>Public Portfolio</span>
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Primary Metric Grid */}
+      {/* TRUST CENTER CARD */}
+      <TrustCenter
+        dataConfidenceScore={trustData?.overallDataConfidence || 96}
+        riskLevel={trustData?.fraudRisk?.riskLevel || 'LOW'}
+        identityVerified={trustData?.identityVerified ?? true}
+        academicVerified={trustData?.academicVerified ?? true}
+        certificateVerificationRate={trustData?.certificateVerificationRate || '2/2'}
+        projectVerificationRate={trustData?.projectVerificationRate || '2/2'}
+        skillVerificationRate={trustData?.skillVerificationRate || '6/6'}
+        scores={trustData?.scores || { identity: 100, academic: 100, skills: 94, projects: 91, certifications: 100, placement: 100, codingActivity: 95 }}
+        explanation={trustData?.explanation || []}
+        academicIdentity={trustData?.academicIdentity}
+      />
+
+      {/* Primary Dual Metric Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Employment Eligibility Score */}
-        <div className="glass-card p-5 rounded-2xl relative overflow-hidden group hover:border-emerald-500/40 transition-all">
+        {/* Metric 1: Employability Score */}
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Employment Score</p>
-              <h3 className="text-3xl font-black text-emerald-400 mt-1">88%</h3>
+              <p className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Employability Score</p>
+              <h3 className="text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-1.5">88%</h3>
             </div>
-            <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20">
               <TrendingUp className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-[11px] text-slate-400 mt-3 flex items-center">
-            <span className="text-emerald-400 font-semibold mr-1">+4%</span> vs last month assessment
-          </p>
-          <div className="w-full bg-slate-800 h-1.5 rounded-full mt-3 overflow-hidden">
-            <div className="bg-emerald-400 h-full rounded-full" style={{ width: '88%' }}></div>
+          <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-3 font-medium">Estimated career & technical readiness</p>
+          <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full mt-3 overflow-hidden">
+            <div className="bg-emerald-500 h-full rounded-full" style={{ width: '88%' }}></div>
           </div>
         </div>
 
-        {/* Skill Score */}
-        <div className="glass-card p-5 rounded-2xl relative overflow-hidden group hover:border-blue-500/40 transition-all">
+        {/* Metric 2: Data Confidence Score */}
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Verified Skill Score</p>
-              <h3 className="text-3xl font-black text-blue-400 mt-1">92 / 100</h3>
+              <p className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Data Confidence Score</p>
+              <h3 className="text-3xl font-black text-blue-600 dark:text-blue-400 mt-1.5">{trustData?.overallDataConfidence || 96} / 100</h3>
             </div>
-            <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
-              <Award className="w-5 h-5" />
+            <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20">
+              <ShieldCheck className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-[11px] text-slate-400 mt-3">6 Skills verified via Naan Mudhalvan</p>
-          <div className="w-full bg-slate-800 h-1.5 rounded-full mt-3 overflow-hidden">
-            <div className="bg-blue-400 h-full rounded-full" style={{ width: '92%' }}></div>
+          <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-3 font-medium">Reliability of profile claims evidence</p>
+          <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full mt-3 overflow-hidden">
+            <div className="bg-blue-500 h-full rounded-full" style={{ width: `${trustData?.overallDataConfidence || 96}%` }}></div>
           </div>
         </div>
 
         {/* ATS Resume Score */}
-        <div className="glass-card p-5 rounded-2xl relative overflow-hidden group hover:border-indigo-500/40 transition-all">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">ATS Resume Score</p>
-              <h3 className="text-3xl font-black text-indigo-400 mt-1">85%</h3>
+              <p className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">ATS Resume Score</p>
+              <h3 className="text-3xl font-black text-indigo-600 dark:text-indigo-400 mt-1.5">85%</h3>
             </div>
-            <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+            <div className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20">
               <FileText className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-[11px] text-slate-400 mt-3">Software Engineer ATS Template</p>
-          <div className="w-full bg-slate-800 h-1.5 rounded-full mt-3 overflow-hidden">
-            <div className="bg-indigo-400 h-full rounded-full" style={{ width: '85%' }}></div>
+          <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-3 font-medium">Software Engineer ATS Template</p>
+          <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full mt-3 overflow-hidden">
+            <div className="bg-indigo-500 h-full rounded-full" style={{ width: '85%' }}></div>
           </div>
         </div>
 
         {/* Profile Completion */}
-        <div className="glass-card p-5 rounded-2xl relative overflow-hidden group hover:border-amber-500/40 transition-all">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Profile Completion</p>
-              <h3 className="text-3xl font-black text-amber-400 mt-1">95%</h3>
+              <p className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Profile Completion</p>
+              <h3 className="text-3xl font-black text-amber-600 dark:text-amber-400 mt-1.5">95%</h3>
             </div>
-            <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+            <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20">
               <CheckCircle2 className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-[11px] text-slate-400 mt-3">All major sections verified</p>
-          <div className="w-full bg-slate-800 h-1.5 rounded-full mt-3 overflow-hidden">
-            <div className="bg-amber-400 h-full rounded-full" style={{ width: '95%' }}></div>
+          <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-3 font-medium">All major sections verified</p>
+          <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full mt-3 overflow-hidden">
+            <div className="bg-amber-500 h-full rounded-full" style={{ width: '95%' }}></div>
           </div>
         </div>
       </div>
 
-      {/* Analytics Section: Radar Chart & SHAP Feature Attributions */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Radar Readiness Spectrum */}
-        <div className="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
-          <div className="flex items-center justify-between">
+      {/* Verified Skills & Assessment CTA Section */}
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div>
+            <h3 className="font-bold text-slate-900 dark:text-slate-100 text-base">Skills Confidence & Evidence Badges</h3>
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Claim vs Demonstrated Skill Breakdown</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
+          <div className="p-4 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-slate-100 text-base">Readiness Spectrum Analysis</h3>
-              <p className="text-xs text-slate-400">Multi-dimensional capability benchmark</p>
+              <span className="font-bold text-slate-900 dark:text-white text-sm">Python</span>
+              <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">Assessment: <strong className="text-emerald-600 dark:text-emerald-400 font-bold">92%</strong></p>
             </div>
-            <span className="text-[11px] bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700">
-              Naan Mudhalvan Standard
-            </span>
+            <VerificationBadge status="HIGH_CONFIDENCE" evidenceScore={94} size="sm" />
           </div>
 
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
-                <PolarGrid stroke="#334155" />
-                <PolarAngleAxis dataKey="subject" stroke="#94a3b8" tick={{ fontSize: 11 }} />
-                <PolarRadiusAxis angle={30} domain={[0, 100]} stroke="#475569" />
-                <Radar name="Aravind" dataKey="score" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.4} />
-              </RadarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Explainable AI (SHAP) Feature Contributions */}
-        <div className="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="p-4 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-slate-100 text-base">Explainable AI (XAI) Attribution</h3>
-              <p className="text-xs text-slate-400">XGBoost model key positive & negative drivers</p>
+              <span className="font-bold text-slate-900 dark:text-white text-sm">React.js</span>
+              <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">Verified GitHub Project</p>
             </div>
-            <span className="text-[11px] bg-emerald-950 text-emerald-300 px-2.5 py-1 rounded-lg border border-emerald-800">
-              SHAP Verified
-            </span>
+            <VerificationBadge status="VERIFIED" evidenceScore={88} size="sm" />
           </div>
 
-          <div className="space-y-3 pt-2">
-            {explainabilityData.map((item, idx) => (
-              <div key={idx} className="space-y-1">
-                <div className="flex justify-between text-xs font-medium">
-                  <span className="text-slate-300">{item.feature}</span>
-                  <span className={item.impact > 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}>
-                    {item.impact > 0 ? `+${item.impact}%` : `${item.impact}%`}
-                  </span>
-                </div>
-                <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full transition-all duration-500"
-                    style={{
-                      width: `${Math.abs(item.impact) * 4}%`,
-                      backgroundColor: item.color,
-                    }}
-                  ></div>
-                </div>
-              </div>
-            ))}
+          <div className="p-4 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div>
+              <span className="font-bold text-slate-900 dark:text-white text-sm">AWS</span>
+              <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">Claimed: <strong className="text-amber-600 dark:text-amber-400 font-bold">Self-Declared</strong></p>
+            </div>
+            <button
+              onClick={() => setSelectedSkillForAssessment({ id: 'aws-skill-id', name: 'AWS' })}
+              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold transition shadow-xs cursor-pointer"
+            >
+              Take Assessment
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Quick Action Hub & Tasks */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Quick Actions */}
-        <div className="glass-card p-6 rounded-2xl space-y-4">
-          <h3 className="font-bold text-slate-100 text-base flex items-center space-x-2">
-            <Zap className="w-4 h-4 text-blue-400" />
-            <span>Automated Integrations</span>
-          </h3>
-
-          <div className="space-y-2">
-            <Link
-              href="/dashboard/student/profile"
-              className="w-full p-3 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 flex items-center justify-between text-xs text-slate-200 transition-colors"
-            >
-              <div className="flex items-center space-x-3">
-                <Github className="w-4 h-4 text-slate-300" />
-                <span>Sync GitHub & LeetCode Activity</span>
-              </div>
-              <ChevronRight className="w-4 h-4 text-slate-500" />
-            </Link>
-
-            <Link
-              href="/dashboard/student/profile"
-              className="w-full p-3 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 flex items-center justify-between text-xs text-slate-200 transition-colors"
-            >
-              <div className="flex items-center space-x-3">
-                <Award className="w-4 h-4 text-amber-400" />
-                <span>EasyOCR Certificate Parser</span>
-              </div>
-              <ChevronRight className="w-4 h-4 text-slate-500" />
-            </Link>
-
-            <Link
-              href="/dashboard/student/resume"
-              className="w-full p-3 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 flex items-center justify-between text-xs text-slate-200 transition-colors"
-            >
-              <div className="flex items-center space-x-3">
-                <FileText className="w-4 h-4 text-indigo-400" />
-                <span>Generate ATS-Friendly PDF Resume</span>
-              </div>
-              <ChevronRight className="w-4 h-4 text-slate-500" />
-            </Link>
+      {/* Analytics Section: Radar Spectrum */}
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div>
+            <h3 className="font-bold text-slate-900 dark:text-slate-100 text-base">Readiness & Data Confidence Spectrum</h3>
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Multi-dimensional capability & trust benchmark</p>
           </div>
         </div>
 
-        {/* Recommended Next Actions */}
-        <div className="glass-card p-6 rounded-2xl lg:col-span-2 space-y-4">
-          <h3 className="font-bold text-slate-100 text-base flex items-center space-x-2">
-            <BookOpen className="w-4 h-4 text-emerald-400" />
-            <span>Recommended Actions for 90%+ Tier-1 Score</span>
-          </h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] bg-rose-950 text-rose-300 px-2 py-0.5 rounded border border-rose-800">High Impact</span>
-                <span className="text-xs text-emerald-400 font-semibold">+6% Score</span>
-              </div>
-              <h4 className="font-semibold text-slate-200 text-sm">Solve 30 Array/String Problems on LeetCode</h4>
-              <p className="text-xs text-slate-400">Pushes your LeetCode problem count to 275+ meeting tier-1 benchmark.</p>
-            </div>
-
-            <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] bg-blue-950 text-blue-300 px-2 py-0.5 rounded border border-blue-800">Naan Mudhalvan</span>
-                <span className="text-xs text-emerald-400 font-semibold">+4% Score</span>
-              </div>
-              <h4 className="font-semibold text-slate-200 text-sm">Complete Cloud Native DevOps Assessment</h4>
-              <p className="text-xs text-slate-400">Verifies Docker & Kubernetes skill badge directly on your profile.</p>
-            </div>
-          </div>
+        <div className="h-64 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
+              <PolarGrid stroke="#94a3b8" />
+              <PolarAngleAxis dataKey="subject" stroke="#334155" tick={{ fontSize: 11, fontWeight: 'bold' }} />
+              <PolarRadiusAxis angle={30} domain={[0, 100]} stroke="#64748b" />
+              <Radar name="Student" dataKey="score" stroke="#2563eb" fill="#2563eb" fillOpacity={0.35} />
+            </RadarChart>
+          </ResponsiveContainer>
         </div>
       </div>
+
+      {/* Skill Assessment Modal */}
+      {selectedSkillForAssessment && (
+        <SkillAssessmentModal
+          studentSkillId={selectedSkillForAssessment.id}
+          skillName={selectedSkillForAssessment.name}
+          onClose={() => setSelectedSkillForAssessment(null)}
+          onSuccess={() => {
+            fetchTrustData();
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -1,201 +1,186 @@
-# Naan Mudhalvan Automated Student Portfolio Compiler
-## & Predictive Employment Eligibility Assessment Engine
+# Naan Mudhalvan - Evidence-Based Student Employability Intelligence Platform
 
-A production-ready full-stack SaaS platform built for Tamil Nadu state skill development aligned with the **Naan Mudhalvan initiative**.
+> **CORE PRODUCT PRINCIPLE: STUDENT CLAIM ≠ VERIFIED RECORD**
+
+An institutional student portfolio and employability intelligence platform equipped with a **Trust Architecture & Anti-Fraud Engine**. Every student claim (Identity, Skills, Projects, Certifications, and Placement) is backed by an evidence trail, automated verification pipelines, machine scoring, scope-limited human approvals, and an immutable audit trail.
 
 ---
 
-## 🚀 Quick Start
+## 1. Trust Architecture Workflow
 
-### 1. Backend (Express.js + Prisma + SQLite)
+```text
+STUDENT CLAIM
+      ↓
+EVIDENCE COLLECTION (SHA-256 File Hash, Verification URL, QR Code, GitHub API, Academic ERP)
+      ↓
+AUTOMATED VERIFICATION (Roll Number Lookup, Credential Reuse Detection, Repo Commit Analysis)
+      ↓
+EVIDENCE & FRAUD RISK SCORING (100-pt Project Score, MCQ Assessment, Anomaly Detection)
+      ↓
+FACULTY / PLACEMENT VERIFICATION (Department-Scoped Queue, Mandatory Audit Reasoning)
+      ↓
+VERIFIED RECORD
+      ↓
+┌───────────────────────────┐      ┌─────────────────────────────┐
+│    EMPLOYABILITY SCORE    │      │    DATA CONFIDENCE SCORE    │
+│ (Career Readiness 0-100)  │  +   │   (Evidence Reliability)    │
+└───────────────────────────┘      └─────────────────────────────┘
+```
+
+---
+
+## 2. Key Platform Features
+
+### 🛡️ Institutional Identity & Anti-Fraud Auth
+- **Academic Integration Abstraction**: `AcademicProvider` interface with `MockAcademicProvider` for roll number lookup (`7376221CS101`) and institutional email verification.
+- **Read-Only Authoritative Fields**: Roll Number, Student ID, Department, CGPA, College Name, Semester, and Section are set by the server from academic records and cannot be edited by students.
+- **Duplicate Account Prevention**: Unique constraints on `rollNumber`, `studentId`, and `institutionalEmail`.
+
+### 📜 Certificate Verification Pipeline
+- **SHA-256 Fingerprinting**: Prevents duplicate certificate submissions across profiles.
+- **Credential Reuse Detection**: Flags suspicious reuse of identical credential IDs across different students (`CREDENTIAL_REUSE_SUSPECTED`).
+- **Triple-Channel Automated Verification**:
+  1. Verification URL domain check & HTTP payload validation.
+  2. QR code decoding & URL endpoint check.
+  3. Issuer API verification (`MockIssuerProvider`).
+- **Faculty Review Queue Fallback**: Non-machine-verifiable certificates route to `MANUAL_REVIEW_REQUIRED`.
+
+### 🐙 GitHub Project Evidence Engine
+- **GitHub API Integration**: Evaluates repository existence, age, commit volume, commit frequency, committer username matching, language breakdown, README quality, and recent activity recency.
+- **100-Point Evidence Scoring**: Transparent scoring model awarding up to 100 points based on verifiable commit activity.
+- **Suspicious Repository Detection**: Automatically flags single-commit repos or repos created immediately before submission (`SUSPICIOUS`).
+
+### 🧠 Skill Assessment & Confidence Engine
+- **Server-Side MCQ Assessments**: Question & option randomization, attempt timeouts, and server-side score calculation.
+- **Explainable Skill Confidence (0-100)**: Multi-factor confidence model weighing Assessments (2.5x), Faculty Approvals (2.0x), Verified Certifications (2.0x), Verified GitHub Projects (1.8x), and Self Declarations (0.5x).
+- **UI Claim Distinction**: Clearly distinguishes **Claimed Skills** from **Demonstrated Skills**.
+
+### 🏛️ Scope-Limited Faculty Verification Queue
+- **Department Scope Boundary**: Faculty members can only view and verify students belonging to their own department.
+- **Mandatory Reasoning**: Requires audit rationale for `REJECT`, `REQUEST_MORE_EVIDENCE`, or `FLAG_FOR_ADMIN`.
+- **IP Tracing & Audit Immutability**: Logs record actor ID, role, action, target user, client IP address (parsing `X-Forwarded-For`), and structured JSON metadata.
+
+### 💼 Verified Placement Workflow
+- **Placement Claim Processing**: Students upload offer letters/joining documents; claims enter `PENDING_VERIFICATION`.
+- **Company Registry Normalization**: Normalizes company name variations (e.g., "Google Inc" -> "Google").
+- **Verified-Only Placement Analytics**: Official placement rate statistics exclude unverified claims.
+
+### 📊 Dual Metric Engine: Employability vs Data Confidence
+- **Employability Score (0-100)**: Estimates technical career readiness.
+- **Data Confidence Score (0-100)**: Measures reliability of underlying evidence (Identity 20%, Academic 15%, Skills 20%, Projects 20%, Certifications 10%, Placement 10%, Coding 5%).
+
+---
+
+## 3. Demonstration Accounts & Scenarios
+
+| Role | Email | Password | Scenario Details |
+| :--- | :--- | :--- | :--- |
+| **Student A** | `aravind.student@college.edu` | `password123` | **VERIFIED Everything** (96% Data Confidence, 88% Employability, Amazon SDE I Placed) |
+| **Student B** | `kavitha.student@college.edu` | `password123` | **Self-Declared Claims** (42% Data Confidence, Single Commit Project Flag) |
+| **Student C** | `sanjay.student@college.edu` | `password123` | **Suspicious Patterns** (61% Data Confidence, Suspicious Repo Flag) |
+| **Student D** | `praveen.student@college.edu` | `password123` | **MCQ Assessment Passed** (91% Data Confidence, Python Assessment 82%) |
+| **Faculty** | `faculty.cse@college.edu` | `password123` | **CSE Department Scope** (Queue, Audited Actions & Reasons) |
+| **Officer** | `placement@college.edu` | `password123` | **Placement Officer** (Verified Placement Claims & CSV Export) |
+| **Admin** | `admin@naanmudhalvan.edu` | `password123` | **System Admin** (Trust Overview, Real-Time IP Audit Logs, AI Status) |
+
+---
+
+## 4. Local Setup & Execution Guide
+
+### Prerequisites
+- Node.js v18+ & npm
+- Python 3.9+ (for AI Service)
+
+### Environment Variables
+Copy `.env.example` to `.env`:
+```bash
+cp .env.example .env
+```
+
+### Database Setup & Seeding
+Inside `backend/` directory:
+```bash
+npx prisma db push
+npx tsx prisma/seed.ts
+```
+
+### 1. Run Backend Service (Express + Prisma)
 ```bash
 cd backend
-npm install
-npx prisma db push
-npm run prisma:seed
 npm run dev
-# → Running on http://localhost:5005
-# → Swagger Docs at http://localhost:5005/api/v1/docs
+# Running on http://localhost:5000
 ```
 
-### 2. Frontend (Next.js 14)
+### 2. Run Frontend Web Application (Next.js)
 ```bash
 cd frontend
-npm install
-npx next dev -p 3005
-# → Running on http://localhost:3005
+npm run dev
+# Running on http://localhost:3000
 ```
 
-### 3. AI Service (FastAPI + Python)
+### 3. Run FastAPI AI Service
 ```bash
 cd ai_service
 pip install -r requirements.txt
 python main.py
-# → Running on http://localhost:8000
-# → API Docs at http://localhost:8000/docs
+# Running on http://localhost:8000
+```
+
+### 4. Run Trust Architecture Test Suite
+```bash
+cd backend
+npx tsx -e "import('./src/__tests__/trustArchitecture.test.js').then(m => m.runTrustArchitectureTests())"
 ```
 
 ---
 
-## 🔑 Demo Credentials (All with password: `password123`)
+## 5. System Architecture & Directory Structure
 
-| Role | Email |
-|------|-------|
-| **Student** | `aravind.student@college.edu` |
-| **Faculty** | `faculty.cse@college.edu` |
-| **Placement Officer** | `placement@college.edu` |
-| **Admin** | `admin@naanmudhalvan.edu` |
-
-Or use the **1-Click Role Switcher** on the landing page.
-
----
-
-## 🏗️ Architecture
-
+```text
+Naan_Mudhalvan/
+├── backend/
+│   ├── prisma/
+│   │   ├── schema.prisma (Extended Trust Architecture Models)
+│   │   └── seed.ts (Scenarios A, B, C, D)
+│   └── src/
+│       ├── controllers/
+│       │   ├── authController.ts (Institutional Identity & Roll Verification)
+│       │   ├── studentController.ts (Read-Only Identity & Evidence CRUD)
+│       │   ├── facultyController.ts (Dept-Scoped Verification Queue)
+│       │   ├── placementController.ts (Placement Claim Officer Verification)
+│       │   ├── adminController.ts (Trust Overview & IP Audit Logs)
+│       │   └── trustController.ts (Data Confidence & MCQ Skill Assessment)
+│       ├── services/
+│       │   ├── integrations/
+│       │   │   ├── academic/academicProvider.ts (Institutional ERP Integration)
+│       │   │   ├── github/githubEvidenceService.ts (100-pt Repo Analyzer)
+│       │   │   └── issuers/issuerVerificationProvider.ts (Issuer API Verification)
+│       │   └── verification/
+│       │       ├── academicVerificationService.ts (Roll & Token Validation)
+│       │       ├── certificateVerificationService.ts (SHA-256 & QR/URL Check)
+│       │       ├── projectEvidenceService.ts (GitHub Score & Suspicious Flags)
+│       │       ├── skillVerificationService.ts (Multi-Factor Skill Confidence)
+│       │       ├── placementVerificationService.ts (Company Normalization)
+│       │       ├── trustScoreService.ts (Data Confidence Calculation)
+│       │       └── fraudRiskService.ts (Deterministic Anomaly Engine)
+│       └── utils/
+│           └── auditLogger.ts (Real Client IP Capture)
+├── frontend/
+│   └── src/
+│       ├── app/
+│       │   ├── dashboard/
+│       │   │   ├── student/ (TrustCenter & Dual Metrics)
+│       │   │   ├── faculty/ (Verification Queue & Audit Reasoning)
+│       │   │   ├── placement/ (Verified Placement Analytics)
+│       │   │   └── admin/ (Trust Overview & IP Log Stream)
+│       └── components/
+│           ├── trust/
+│           │   ├── TrustCenter.tsx (Data Confidence Breakdown)
+│           │   └── VerificationBadge.tsx (Status & Tooltip Provenance)
+│           └── skills/
+│               └── SkillAssessmentModal.tsx (Interactive MCQ Testing)
+└── ai_service/
+    ├── main.py (FastAPI Routes)
+    └── services/
+        └── evidence_analyzer.py (NLP Evidence Analysis)
 ```
-frontend/ (Next.js 14 App Router - Port 3005)
-  └── src/
-      ├── app/
-      │   ├── page.tsx                    # Landing / Login Page
-      │   ├── dashboard/
-      │   │   ├── student/                # Student Portal
-      │   │   │   ├── page.tsx            # Dashboard with XAI + Recharts
-      │   │   │   ├── profile/            # Profile & Skills (CRUD + OCR)
-      │   │   │   ├── portfolio/          # Portfolio Compiler Config
-      │   │   │   ├── resume/             # ATS Resume Studio
-      │   │   │   ├── eligibility/        # Explainable AI Engine (SHAP)
-      │   │   │   └── roadmap/            # Career & Skill Gap Roadmap
-      │   │   ├── faculty/
-      │   │   │   ├── page.tsx            # Faculty Roster + Approvals
-      │   │   │   ├── approvals/          # Portfolio Approval Workflow
-      │   │   │   └── analytics/          # Class Performance Analytics
-      │   │   ├── placement/
-      │   │   │   ├── page.tsx            # Placement Hub Dashboard
-      │   │   │   ├── readiness/          # Eligibility Tier Analytics
-      │   │   │   └── candidates/         # Top Performer Cards
-      │   │   └── admin/
-      │   │       ├── page.tsx            # RBAC + AI Model Status
-      │   │       ├── logs/               # Filterable Audit Log Table
-      │   │       └── ai-status/          # AI Diagnostics + Throughput
-      │   └── portfolio/[slug]/           # Public Portfolio View
-      ├── components/
-      │   ├── layout/Sidebar.tsx          # Role-based navigation
-      │   ├── layout/Header.tsx           # Search, notifications, role switcher
-      │   └── search/SearchModal.tsx      # Global search modal (⌘K)
-      └── store/useAuthStore.ts           # Zustand auth + theme state
-
-backend/ (Express.js + TypeScript + Prisma - Port 5005)
-  ├── src/
-  │   ├── index.ts                        # Server entry + Swagger docs
-  │   ├── routes/api.ts                   # All /api/v1/* routes
-  │   ├── controllers/
-  │   │   ├── authController.ts           # Register/Login/Refresh JWT
-  │   │   ├── studentController.ts        # Profile/Skills/Projects CRUD
-  │   │   ├── portfolioController.ts      # Portfolio compiler + public slug
-  │   │   ├── resumeController.ts         # ATS resume generator + optimizer
-  │   │   ├── assessmentController.ts     # XAI prediction + skill gap + roadmap
-  │   │   ├── facultyController.ts        # Department monitoring + approvals
-  │   │   ├── placementController.ts      # Analytics + CSV export
-  │   │   ├── adminController.ts          # RBAC + audit logs + AI status
-  │   │   └── searchController.ts         # Global multi-entity search
-  │   └── middlewares/
-  │       ├── auth.ts                     # JWT authenticate + authorize roles
-  │       └── error.ts                    # Global error handler
-  └── prisma/
-      ├── schema.prisma                   # Full DB schema (17 models)
-      └── seed.ts                         # Rich seed data
-
-ai_service/ (FastAPI + Python - Port 8000)
-  ├── main.py                             # FastAPI app with 5 endpoints
-  ├── models.py                           # Pydantic request/response schemas
-  └── services/
-      ├── resume_parser.py                # NLP skill extraction + ATS scoring
-      ├── certificate_ocr.py              # EasyOCR heuristic extraction
-      ├── eligibility_model.py            # XGBoost prediction + SHAP XAI
-      └── recommendation_engine.py        # Skill gap + career roadmap
-```
-
----
-
-## 🔌 API Endpoints
-
-### Auth
-- `POST /api/v1/auth/register` — Register user
-- `POST /api/v1/auth/login` — Login + get JWT
-- `POST /api/v1/auth/refresh-token` — Refresh access token
-- `GET /api/v1/auth/me` — Get current user
-
-### Student
-- `GET/PUT /api/v1/student/profile` — Full profile CRUD
-- `POST/DELETE /api/v1/student/skills` — Skills management
-- `POST/PUT/DELETE /api/v1/student/projects` — Projects CRUD
-- `POST/DELETE /api/v1/student/certifications` — Certifications CRUD
-- `POST /api/v1/student/sync-external` — GitHub/LeetCode sync
-
-### Assessment (XAI)
-- `POST /api/v1/assessment/predict` — Run XGBoost eligibility prediction
-- `GET /api/v1/assessment/skill-gap` — Skill gap for target role
-- `GET /api/v1/assessment/roadmap` — Career roadmap generator
-
-### Portfolio & Resume
-- `GET /api/v1/portfolio/public/:slug` — Public portfolio viewer
-- `POST /api/v1/portfolio/config` — Portfolio settings
-- `POST /api/v1/resume/generate` — Generate ATS resume
-- `POST /api/v1/resume/optimize` — ATS optimizer + keyword analysis
-
-### Faculty, Placement, Admin
-- `GET /api/v1/faculty/students` — Department roster
-- `POST /api/v1/faculty/approve` — Approve project/certificate
-- `GET /api/v1/placement/dashboard` — Placement analytics
-- `GET /api/v1/placement/export-csv` — Download placement report
-- `GET /api/v1/admin/users` — All users RBAC
-- `GET /api/v1/admin/audit-logs` — System logs
-- `GET /api/v1/admin/ai-status` — AI model health
-
-### Search
-- `GET /api/v1/search?q=term` — Global search
-
-### AI Service (FastAPI)
-- `POST /api/v1/ai/parse-resume` — Resume NLP extraction
-- `POST /api/v1/ai/ocr-certificate` — Certificate OCR parsing
-- `POST /api/v1/ai/predict-eligibility` — XGBoost + SHAP
-- `POST /api/v1/ai/skill-gap` — Skill gap analysis
-- `POST /api/v1/ai/career-roadmap` — Personalized roadmap
-
----
-
-## ✅ Features Implemented
-
-- [x] **Authentication** — JWT access + refresh tokens, bcrypt, RBAC middleware
-- [x] **4 Role Portals** — Student, Faculty, Placement Officer, Admin
-- [x] **Student Profile CRUD** — Academic, skills, projects, certifications
-- [x] **EasyOCR Certificate Parser** — Heuristic extraction engine
-- [x] **GitHub/LeetCode Sync** — Automated activity data collection
-- [x] **Portfolio Compiler** — Auto-generated public portfolio with shareable slug
-- [x] **ATS Resume Studio** — Role-specific resume with score + keyword analysis
-- [x] **Explainable AI (XAI)** — XGBoost + SHAP feature attribution display
-- [x] **Skill Gap Analysis** — Missing skills vs target role with resources
-- [x] **Career Roadmap** — Weekly plan + monthly milestones
-- [x] **Faculty Approval Workflow** — Projects/cert approval with filter
-- [x] **Placement Analytics** — Tier distribution, trends, candidate filter
-- [x] **Top Candidates Leaderboard** — Detailed card view with contact actions
-- [x] **Admin Panel** — RBAC management, system logs, AI diagnostics
-- [x] **Audit Log Viewer** — Filterable log table with CSV export
-- [x] **Global Search** — ⌘K modal across students, projects, skills, certs
-- [x] **Notifications Dropdown** — In-app notification center
-- [x] **Dark Mode** — Premium charcoal slate enterprise theme
-- [x] **Recharts Analytics** — Radar, Bar, Area, Line, Pie charts throughout
-- [x] **Swagger API Docs** — http://localhost:5005/api/v1/docs
-- [x] **Prisma ORM + SQLite** — 17-model schema with seeds
-- [x] **CSV Export** — Placement report download
-
----
-
-## 🚢 Production Deployment
-
-| Service | Platform | Notes |
-|---------|----------|-------|
-| Frontend | Vercel | `cd frontend && vercel deploy` |
-| Backend | Railway | Set DATABASE_URL to Supabase PG |
-| AI Service | Railway | `python main.py` with gunicorn |
-| Database | Supabase | Change `provider` to `postgresql` in schema.prisma |

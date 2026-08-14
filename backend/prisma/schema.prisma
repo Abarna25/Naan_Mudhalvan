@@ -20,9 +20,45 @@ model User {
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
-  profile          Profile?
-  notifications    Notification[]
-  auditLogs        AuditLog[]
+  profile               Profile?
+  academicIdentity      AcademicIdentity?
+  notifications         Notification[]
+  auditLogs             AuditLog[]
+  facultyVerifications  FacultyVerification[] @relation("FacultyVerifications")
+}
+
+model AcademicIdentity {
+  id                  String   @id @default(uuid())
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  studentId           String   @unique
+  rollNumber          String   @unique
+  institutionalEmail String   @unique
+  name                String
+  collegeName         String   @default("Government Engineering College, Salem")
+  department          String   @default("Computer Science & Engineering")
+  program             String   @default("B.E. Computer Science and Engineering")
+  year                Int      @default(3)
+  semester            Int      @default(6)
+  batch               String   @default("2022-2026")
+  section             String   @default("A")
+  academicStatus      String   @default("ACTIVE") // ACTIVE | GRADUATED | SUSPENDED
+  cgpa                Float    @default(8.5)
+  verificationStatus  String   @default("VERIFIED") // VERIFIED | PENDING | REJECTED
+  verifiedAt          DateTime @default(now())
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model VerificationToken {
+  id          String   @id @default(uuid())
+  email       String
+  rollNumber  String
+  token       String   @unique
+  expiresAt   DateTime
+  used        Boolean  @default(false)
+  attempts    Int      @default(0)
+  createdAt   DateTime @default(now())
 }
 
 model Profile {
@@ -33,7 +69,7 @@ model Profile {
   cgpa               Float            @default(0.0)
   graduationYear     Int              @default(2025)
   phone              String?
-  collegeName        String           @default("Government Engineering College, TN")
+  collegeName        String           @default("Government Engineering College, Salem")
   githubUsername     String?
   leetcodeUsername   String?
   hackerrankUsername String?
@@ -56,6 +92,8 @@ model Profile {
   portfolioVersions  PortfolioVersion[]
   resumeVersions     ResumeVersion[]
   recommendations    Recommendation[]
+  placementClaims    PlacementClaim[]
+  trustScore         TrustScore?
 }
 
 model Skill {
@@ -66,45 +104,143 @@ model Skill {
 }
 
 model StudentSkill {
-  id             String   @id @default(uuid())
+  id             String          @id @default(uuid())
   profileId      String
-  profile        Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profile        Profile         @relation(fields: [profileId], references: [id], onDelete: Cascade)
   skillId        String
-  skill          Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
-  proficiency    Int      @default(70)
-  verifiedSource String   @default("Self Verified")
+  skill          Skill           @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  proficiency    Int             @default(70)
+  verifiedSource String          @default("Self Verified")
+  status         String          @default("SELF_DECLARED") // SELF_DECLARED | EVIDENCE_FOUND | PARTIALLY_VERIFIED | VERIFIED | HIGH_CONFIDENCE | MANUAL_REVIEW
+  confidenceScore Int            @default(20) // 0-100
+  assessmentScore Float?
+  evidences      SkillEvidence[]
 
   @@unique([profileId, skillId])
 }
 
+model SkillEvidence {
+  id             String       @id @default(uuid())
+  studentSkillId String
+  studentSkill   StudentSkill @relation(fields: [studentSkillId], references: [id], onDelete: Cascade)
+  evidenceType   String       // ASSESSMENT | FACULTY_APPROVAL | VERIFIED_CERTIFICATE | GITHUB_PROJECT | ACADEMIC_COURSE | SELF_DECLARED
+  sourceId       String?
+  description    String
+  weight         Float        @default(1.0)
+  confidenceDelta Int         @default(10)
+  verifiedAt     DateTime     @default(now())
+}
+
+model SkillAssessment {
+  id             String                    @id @default(uuid())
+  skillName      String
+  category       String                    @default("Technical")
+  title          String
+  description    String
+  totalQuestions Int                       @default(5)
+  passingScore   Int                       @default(60) // Percentage
+  createdAt      DateTime                  @default(now())
+  questions      SkillAssessmentQuestion[]
+  attempts       SkillAssessmentAttempt[]
+}
+
+model SkillAssessmentQuestion {
+  id                 String          @id @default(uuid())
+  assessmentId       String
+  assessment         SkillAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  questionText       String
+  optionsJson        String          // JSON string array of options
+  correctAnswerIndex Int             // 0-indexed
+  explanation        String?
+}
+
+model SkillAssessmentAttempt {
+  id               String          @id @default(uuid())
+  assessmentId     String
+  assessment       SkillAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  studentId         String          // User ID
+  score            Float           @default(0.0) // Percentage
+  passed           Boolean         @default(false)
+  status           String          @default("IN_PROGRESS") // IN_PROGRESS | SUBMITTED | EXPIRED
+  startedAt        DateTime        @default(now())
+  submittedAt      DateTime?
+  userAnswersJson  String?         // JSON array of answers submitted
+}
+
 model Project {
-  id          String   @id @default(uuid())
+  id          String           @id @default(uuid())
   profileId   String
-  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profile     Profile          @relation(fields: [profileId], references: [id], onDelete: Cascade)
   title       String
   description String
   techStack   String   
   githubUrl   String?
   liveUrl     String?
-  stars       Int      @default(0)
-  status      String   @default("PENDING") // PENDING | APPROVED | REJECTED
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  stars       Int              @default(0)
+  status      String           @default("PENDING") // PENDING | APPROVED | REJECTED | SUSPICIOUS | MANUAL_REVIEW_REQUIRED
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  evidence    ProjectEvidence?
+}
+
+model ProjectEvidence {
+  id                        String   @id @default(uuid())
+  projectId                 String   @unique
+  project                   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  repoOwner                 String?
+  repoName                  String?
+  repoAgeMonths             Int      @default(0)
+  commitCount               Int      @default(0)
+  commitFrequency           String?  // 'HIGH' | 'MEDIUM' | 'LOW'
+  studentContributionFound Boolean  @default(false)
+  contributionPercentage    Float    @default(0.0)
+  languageBreakdown         String?  // JSON string
+  contributorsCount         Int      @default(1)
+  hasReadme                 Boolean  @default(false)
+  recentActivityDays        Int      @default(0)
+  evidenceScore             Int      @default(0) // 0-100
+  contributionStatus        String   @default("MANUAL_REVIEW_REQUIRED") // OWNER_VERIFIED | CONTRIBUTOR_VERIFIED | NO_CONTRIBUTION_FOUND | REPOSITORY_NOT_FOUND | PRIVATE_REPOSITORY | MANUAL_REVIEW_REQUIRED
+  riskFlags                 String?  // JSON array of suspicious indicators
+  verifiedAt                DateTime?
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
 }
 
 model Certification {
-  id           String   @id @default(uuid())
+  id           String                   @id @default(uuid())
   profileId    String
-  profile      Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profile      Profile                  @relation(fields: [profileId], references: [id], onDelete: Cascade)
   title        String
   issuer       String
   issueDate    String?
   credentialId String?
   fileUrl      String?
-  ocrExtracted Boolean  @default(false)
-  isDuplicate  Boolean  @default(false)
-  status       String   @default("PENDING") // PENDING | APPROVED | REJECTED
-  createdAt    DateTime @default(now())
+  ocrExtracted Boolean                  @default(false)
+  isDuplicate  Boolean                  @default(false)
+  status       String                   @default("PENDING") // PENDING | APPROVED | REJECTED | VERIFIED | MANUAL_REVIEW_REQUIRED | INVALID
+  createdAt    DateTime                 @default(now())
+
+  verification CertificateVerification?
+}
+
+model CertificateVerification {
+  id                   String        @id @default(uuid())
+  certificationId      String        @unique
+  certification        Certification @relation(fields: [certificationId], references: [id], onDelete: Cascade)
+  fileHash             String?
+  verificationUrl      String?
+  verificationDomain   String?
+  verificationResponse String?       // JSON response from HTTP validation
+  qrCodeData           String?
+  issuerVerified       Boolean       @default(false)
+  verificationStatus   String        @default("PENDING") // PENDING | VERIFIED | REJECTED | MANUAL_REVIEW | INVALID | CREDENTIAL_REUSE_SUSPECTED
+  verificationMethod   String        @default("URL_AND_QR") // URL_AND_QR | ISSUER_API | FACULTY_MANUAL | NONE
+  verifiedBy           String?       // Faculty User ID or 'SYSTEM'
+  verifiedAt           DateTime?
+  riskFlags            String?       // JSON array of risk flags
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
 }
 
 model Achievement {
@@ -212,6 +348,63 @@ model Recommendation {
   createdAt    DateTime @default(now())
 }
 
+model PlacementClaim {
+  id                 String   @id @default(uuid())
+  profileId          String
+  profile            Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  companyName        String
+  companyId          String?
+  company            Company? @relation(fields: [companyId], references: [id])
+  roleTitle          String
+  packageLpa         Float?
+  offerLetterUrl     String?
+  joiningLetterUrl   String?
+  claimStatus        String   @default("PENDING_VERIFICATION") // CLAIMED | PENDING_VERIFICATION | VERIFIED | REJECTED
+  verifiedBy         String?
+  verifiedAt         DateTime?
+  rejectionReason    String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model Company {
+  id              String           @id @default(uuid())
+  name            String           @unique
+  normalizedName  String           @unique
+  tier            String           @default("Tier 2") // Tier 1 | Tier 2 | Tier 3 | Startup
+  isRegistered    Boolean          @default(true)
+  placementClaims PlacementClaim[]
+}
+
+model FacultyVerification {
+  id         String   @id @default(uuid())
+  facultyId  String
+  faculty    User     @relation("FacultyVerifications", fields: [facultyId], references: [id])
+  studentId  String
+  targetType String   // CERTIFICATE | PROJECT | SKILL | PLACEMENT | IDENTITY
+  targetId   String
+  action     String   // APPROVE | REJECT | REQUEST_MORE_EVIDENCE | FLAG_FOR_ADMIN
+  reason     String?
+  ipAddress  String
+  createdAt  DateTime @default(now())
+}
+
+model TrustScore {
+  id                     String   @id @default(uuid())
+  profileId              String   @unique
+  profile                Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  overallDataConfidence  Int      @default(50) // 0-100
+  identityScore          Int      @default(0)
+  academicScore          Int      @default(0)
+  skillScore             Int      @default(0)
+  projectScore           Int      @default(0)
+  certificationScore     Int      @default(0)
+  placementScore         Int      @default(0)
+  riskLevel              String   @default("LOW") // LOW | MEDIUM | HIGH
+  breakdownJson          String   // JSON string of detailed breakdown
+  updatedAt              DateTime @updatedAt
+}
+
 model Notification {
   id        String   @id @default(uuid())
   userId    String
@@ -232,3 +425,4 @@ model AuditLog {
   ipAddress String?
   createdAt DateTime @default(now())
 }
+

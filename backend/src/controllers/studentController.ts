@@ -1,6 +1,16 @@
 import { Response, NextFunction } from 'express';
 import { prisma } from '../config/prisma.js';
 import { AuthRequest } from '../middlewares/auth.js';
+import { ProjectEvidenceService } from '../services/verification/projectEvidenceService.js';
+import { CertificateVerificationService } from '../services/verification/certificateVerificationService.js';
+import { SkillVerificationService } from '../services/verification/skillVerificationService.js';
+import { TrustScoreService } from '../services/verification/trustScoreService.js';
+import { logAuditEvent } from '../utils/auditLogger.js';
+
+const projectEvidenceService = new ProjectEvidenceService();
+const certVerificationService = new CertificateVerificationService();
+const skillVerificationService = new SkillVerificationService();
+const trustScoreService = new TrustScoreService();
 
 // Get full student profile
 export const getStudentProfile = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -9,13 +19,26 @@ export const getStudentProfile = async (req: AuthRequest, res: Response, next: N
     const profile = await prisma.profile.findUnique({
       where: { userId },
       include: {
-        user: { select: { name: true, email: true, role: true, department: true, naanMudhalvanId: true, avatarUrl: true } },
-        skills: { include: { skill: true } },
-        projects: true,
-        certifications: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            department: true,
+            naanMudhalvanId: true,
+            avatarUrl: true,
+            academicIdentity: true,
+          },
+        },
+        skills: { include: { skill: true, evidences: true } },
+        projects: { include: { evidence: true } },
+        certifications: { include: { verification: true } },
         achievements: true,
         internships: true,
         codingProfile: true,
+        placementClaims: true,
+        trustScore: true,
         employmentScores: { orderBy: { createdAt: 'desc' }, take: 1 },
         skillGaps: { orderBy: { createdAt: 'desc' }, take: 1 },
         roadmaps: { orderBy: { createdAt: 'desc' }, take: 1 },
@@ -33,27 +56,32 @@ export const getStudentProfile = async (req: AuthRequest, res: Response, next: N
   }
 };
 
-// Update profile details
+// Update profile details (Protect authoritative fields!)
 export const updateStudentProfile = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id;
-    const { bio, cgpa, graduationYear, phone, collegeName, githubUsername, leetcodeUsername, hackerrankUsername, linkedinUrl } = req.body;
+    const { bio, graduationYear, phone, githubUsername, leetcodeUsername, hackerrankUsername, linkedinUrl } = req.body;
+
+    // Reject attempt to modify authoritative fields
+    if (req.body.cgpa !== undefined || req.body.collegeName !== undefined || req.body.department !== undefined) {
+      await logAuditEvent('AUTHORITATIVE_UPDATE_ATTEMPT', 'Student attempted to modify read-only academic fields', userId, req);
+    }
 
     const profile = await prisma.profile.update({
       where: { userId },
       data: {
         bio,
-        cgpa: cgpa ? parseFloat(cgpa) : undefined,
         graduationYear: graduationYear ? parseInt(graduationYear) : undefined,
         phone,
-        collegeName,
         githubUsername,
         leetcodeUsername,
         hackerrankUsername,
         linkedinUrl,
-        profileCompletion: 85, // recalculate score
+        profileCompletion: 85,
       },
     });
+
+    await trustScoreService.calculateProfileTrustScore(profile.id);
 
     res.json({ success: true, data: profile });
   } catch (error) {
@@ -65,7 +93,7 @@ export const updateStudentProfile = async (req: AuthRequest, res: Response, next
 export const addOrUpdateSkill = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id;
-    const { skillName, category = 'Technical', proficiency = 80, verifiedSource = 'Self Verified' } = req.body;
+    const { skillName, category = 'Technical', proficiency = 70 } = req.body;
 
     const profile = await prisma.profile.findUnique({ where: { userId } });
     if (!profile) return res.status(404).json({ success: false, error: 'Profile not found' });
@@ -82,17 +110,28 @@ export const addOrUpdateSkill = async (req: AuthRequest, res: Response, next: Ne
           skillId: skill.id,
         },
       },
-      update: { proficiency, verifiedSource },
+      update: { proficiency },
       create: {
         profileId: profile.id,
         skillId: skill.id,
         proficiency,
-        verifiedSource,
+        verifiedSource: 'Self Declared',
+        status: 'SELF_DECLARED',
+        confidenceScore: 20,
       },
       include: { skill: true },
     });
 
-    res.json({ success: true, data: studentSkill });
+    // Recalculate skill confidence & trust score
+    await skillVerificationService.recalculateSkillConfidence(studentSkill.id);
+    await trustScoreService.calculateProfileTrustScore(profile.id);
+
+    const updatedSkill = await prisma.studentSkill.findUnique({
+      where: { id: studentSkill.id },
+      include: { skill: true, evidences: true },
+    });
+
+    res.json({ success: true, data: updatedSkill });
   } catch (error) {
     next(error);
   }
@@ -101,20 +140,28 @@ export const addOrUpdateSkill = async (req: AuthRequest, res: Response, next: Ne
 export const deleteSkill = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    await prisma.studentSkill.delete({ where: { id } });
+    const skill = await prisma.studentSkill.findUnique({ where: { id } });
+    if (skill) {
+      await prisma.studentSkill.delete({ where: { id } });
+      await trustScoreService.calculateProfileTrustScore(skill.profileId);
+    }
     res.json({ success: true, message: 'Skill removed' });
   } catch (error) {
     next(error);
   }
 };
 
-// Projects CRUD
+// Projects CRUD with GitHub Evidence Scoring
 export const createProject = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id;
     const { title, description, techStack, githubUrl, liveUrl } = req.body;
 
-    const profile = await prisma.profile.findUnique({ where: { userId } });
+    const profile = await prisma.profile.findUnique({
+      where: { userId },
+      include: { user: { select: { name: true } } },
+    });
+
     if (!profile) return res.status(404).json({ success: false, error: 'Profile not found' });
 
     const project = await prisma.project.create({
@@ -125,12 +172,33 @@ export const createProject = async (req: AuthRequest, res: Response, next: NextF
         techStack: Array.isArray(techStack) ? techStack.join(', ') : techStack,
         githubUrl,
         liveUrl,
-        stars: Math.floor(Math.random() * 15) + 1,
-        status: 'APPROVED',
+        stars: 0,
+        status: 'PENDING',
       },
     });
 
-    res.status(201).json({ success: true, data: project });
+    // Trigger automated GitHub evidence evaluation
+    const githubAnalysis = await projectEvidenceService.evaluateProjectEvidence(
+      project.id,
+      profile.githubUsername
+    );
+
+    await trustScoreService.calculateProfileTrustScore(profile.id);
+
+    await logAuditEvent(
+      'PROJECT_SUBMITTED',
+      `Project "${title}" submitted. Evidence Score: ${githubAnalysis.evidenceScore}/100. Status: ${project.status}`,
+      userId,
+      req,
+      { githubUrl, evidenceScore: githubAnalysis.evidenceScore }
+    );
+
+    const updatedProject = await prisma.project.findUnique({
+      where: { id: project.id },
+      include: { evidence: true },
+    });
+
+    res.status(201).json({ success: true, data: updatedProject });
   } catch (error) {
     next(error);
   }
@@ -139,7 +207,7 @@ export const createProject = async (req: AuthRequest, res: Response, next: NextF
 export const updateProject = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    const { title, description, techStack, githubUrl, liveUrl, status } = req.body;
+    const { title, description, techStack, githubUrl, liveUrl } = req.body;
 
     const project = await prisma.project.update({
       where: { id },
@@ -149,11 +217,19 @@ export const updateProject = async (req: AuthRequest, res: Response, next: NextF
         techStack: Array.isArray(techStack) ? techStack.join(', ') : techStack,
         githubUrl,
         liveUrl,
-        status,
       },
     });
 
-    res.json({ success: true, data: project });
+    const profile = await prisma.profile.findUnique({ where: { id: project.profileId } });
+    await projectEvidenceService.evaluateProjectEvidence(project.id, profile?.githubUsername);
+    await trustScoreService.calculateProfileTrustScore(project.profileId);
+
+    const updated = await prisma.project.findUnique({
+      where: { id },
+      include: { evidence: true },
+    });
+
+    res.json({ success: true, data: updated });
   } catch (error) {
     next(error);
   }
@@ -162,26 +238,29 @@ export const updateProject = async (req: AuthRequest, res: Response, next: NextF
 export const deleteProject = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    await prisma.project.delete({ where: { id } });
+    const project = await prisma.project.findUnique({ where: { id } });
+    if (project) {
+      await prisma.project.delete({ where: { id } });
+      await trustScoreService.calculateProfileTrustScore(project.profileId);
+    }
     res.json({ success: true, message: 'Project deleted' });
   } catch (error) {
     next(error);
   }
 };
 
-// Certifications CRUD
+// Certifications CRUD with SHA-256 Hash & Triple-Channel Verification
 export const addCertification = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id;
-    const { title, issuer, issueDate, credentialId, fileUrl } = req.body;
+    const { title, issuer, issueDate, credentialId, fileUrl, verificationUrl, qrCodeData } = req.body;
 
-    const profile = await prisma.profile.findUnique({ where: { userId } });
-    if (!profile) return res.status(404).json({ success: false, error: 'Profile not found' });
-
-    // Check duplicate
-    const existing = await prisma.certification.findFirst({
-      where: { profileId: profile.id, title, issuer },
+    const profile = await prisma.profile.findUnique({
+      where: { userId },
+      include: { user: { select: { name: true } } },
     });
+
+    if (!profile) return res.status(404).json({ success: false, error: 'Profile not found' });
 
     const cert = await prisma.certification.create({
       data: {
@@ -192,12 +271,39 @@ export const addCertification = async (req: AuthRequest, res: Response, next: Ne
         credentialId,
         fileUrl,
         ocrExtracted: true,
-        isDuplicate: Boolean(existing),
-        status: 'APPROVED',
+        status: 'PENDING',
       },
     });
 
-    res.status(201).json({ success: true, data: cert });
+    // Run automated verification pipeline
+    const verificationResult = await certVerificationService.processCertificateVerification({
+      certificationId: cert.id,
+      profileId: profile.id,
+      studentName: profile.user.name,
+      title,
+      issuer,
+      credentialId,
+      verificationUrl,
+      fileUrl,
+      qrCodeData,
+    });
+
+    await trustScoreService.calculateProfileTrustScore(profile.id);
+
+    await logAuditEvent(
+      'CERTIFICATE_UPLOADED',
+      `Certificate "${title}" uploaded. Verification Status: ${verificationResult.status}`,
+      userId,
+      req,
+      { credentialId, verificationResult }
+    );
+
+    const updatedCert = await prisma.certification.findUnique({
+      where: { id: cert.id },
+      include: { verification: true },
+    });
+
+    res.status(201).json({ success: true, data: updatedCert });
   } catch (error) {
     next(error);
   }
@@ -206,34 +312,37 @@ export const addCertification = async (req: AuthRequest, res: Response, next: Ne
 export const deleteCertification = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    await prisma.certification.delete({ where: { id } });
+    const cert = await prisma.certification.findUnique({ where: { id } });
+    if (cert) {
+      await prisma.certification.delete({ where: { id } });
+      await trustScoreService.calculateProfileTrustScore(cert.profileId);
+    }
     res.json({ success: true, message: 'Certification removed' });
   } catch (error) {
     next(error);
   }
 };
 
-// Automated Sync (GitHub, LeetCode, HackerRank)
+// External sync
 export const syncExternalProfiles = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id;
     const profile = await prisma.profile.findUnique({ where: { userId } });
     if (!profile) return res.status(404).json({ success: false, error: 'Profile not found' });
 
-    // Mock fetch/scrape stats from external services
     const codingStats = await prisma.codingProfile.upsert({
       where: { profileId: profile.id },
       update: {
-        leetcodeSolved: Math.floor(120 + Math.random() * 80),
-        leetcodeRating: Math.floor(1600 + Math.random() * 250),
+        leetcodeSolved: 145,
+        leetcodeRating: 1680,
         hackerrankStars: 5,
-        githubRepos: Math.floor(12 + Math.random() * 10),
-        githubStars: Math.floor(25 + Math.random() * 50),
-        githubCommits: Math.floor(340 + Math.random() * 200),
+        githubRepos: 18,
+        githubStars: 42,
+        githubCommits: 412,
       },
       create: {
         profileId: profile.id,
-        leetcodeSolved: 142,
+        leetcodeSolved: 145,
         leetcodeRating: 1680,
         hackerrankStars: 5,
         githubRepos: 18,
@@ -241,6 +350,8 @@ export const syncExternalProfiles = async (req: AuthRequest, res: Response, next
         githubCommits: 412,
       },
     });
+
+    await trustScoreService.calculateProfileTrustScore(profile.id);
 
     res.json({
       success: true,

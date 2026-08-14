@@ -32,8 +32,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
   accessToken: 'demo-access-token',
   isAuthenticated: true,
-  theme: 'dark',
+  theme: 'light', // Set default theme mode to light
   setAuth: (user, token) => set({ user, accessToken: token, isAuthenticated: true }),
-  logout: () => set({ user: null, accessToken: null, isAuthenticated: false }),
+  logout: () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
+    set({ user: null, accessToken: null, isAuthenticated: false });
+  },
   toggleTheme: () => set((state) => ({ theme: state.theme === 'dark' ? 'light' : 'dark' })),
 }));
