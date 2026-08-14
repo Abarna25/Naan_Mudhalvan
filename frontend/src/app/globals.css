@@ -2,32 +2,675 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =========================================================
+   NAAN MUDHALVAN — GLOBAL DESIGN SYSTEM
+   ========================================================= */
+
 @layer base {
+  html {
+    background: #f8fafc;
+  }
+
   body {
-    @apply bg-slate-50 text-slate-900 font-sans antialiased selection:bg-blue-500 selection:text-white transition-colors duration-200;
+    @apply bg-slate-50 text-slate-900 font-sans antialiased;
+    margin: 0;
+    min-height: 100vh;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  ::selection {
+    background: #4f46e5;
+    color: #ffffff;
   }
 }
 
+/* =========================================================
+   BASE LIGHT UI
+   ========================================================= */
+
 .glass-card {
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.96);
   border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.03),
+    0 8px 24px rgba(15, 23, 42, 0.04);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
-/* Dark Mode Overrides (if toggled) */
+.glass-card:hover {
+  box-shadow:
+    0 2px 4px rgba(15, 23, 42, 0.04),
+    0 12px 30px rgba(15, 23, 42, 0.06);
+}
+
+/* =========================================================
+   DASHBOARD LIGHT THEME
+   Only applies to authenticated dashboard pages.
+   
+   body:has(aside) is used because Sidebar exists only
+   inside the dashboard layout.
+   ========================================================= */
+
+html.light body:has(aside) {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* ---------------------------------------------------------
+   Dashboard backgrounds
+   --------------------------------------------------------- */
+
+html.light body:has(aside) .bg-slate-50 {
+  background-color: #f8fafc !important;
+}
+
+html.light body:has(aside) .bg-slate-100 {
+  background-color: #f1f5f9 !important;
+}
+
+html.light body:has(aside) .bg-slate-200 {
+  background-color: #e2e8f0 !important;
+}
+
+html.light body:has(aside) .bg-slate-300 {
+  background-color: #cbd5e1 !important;
+}
+
+html.light body:has(aside) .bg-slate-600 {
+  background-color: #64748b !important;
+}
+
+html.light body:has(aside) .bg-slate-700 {
+  background-color: #e2e8f0 !important;
+}
+
+html.light body:has(aside) .bg-slate-800 {
+  background-color: #f1f5f9 !important;
+}
+
+html.light body:has(aside) .bg-slate-900 {
+  background-color: #ffffff !important;
+}
+
+html.light body:has(aside) .bg-slate-950 {
+  background-color: #f8fafc !important;
+}
+
+/* Transparent dark backgrounds */
+
+html.light body:has(aside) .bg-slate-900\/50 {
+  background-color: rgba(248, 250, 252, 0.92) !important;
+}
+
+html.light body:has(aside) .bg-slate-800\/60 {
+  background-color: rgba(241, 245, 249, 0.9) !important;
+}
+
+html.light body:has(aside) .bg-slate-950\/80 {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+}
+
+/* ---------------------------------------------------------
+   Dashboard text colors
+   --------------------------------------------------------- */
+
+html.light body:has(aside) .text-slate-100 {
+  color: #0f172a !important;
+}
+
+html.light body:has(aside) .text-slate-200 {
+  color: #1e293b !important;
+}
+
+html.light body:has(aside) .text-slate-300 {
+  color: #334155 !important;
+}
+
+html.light body:has(aside) .text-slate-400 {
+  color: #64748b !important;
+}
+
+html.light body:has(aside) .text-slate-500 {
+  color: #64748b !important;
+}
+
+html.light body:has(aside) .text-slate-600 {
+  color: #475569 !important;
+}
+
+html.light body:has(aside) .text-slate-700 {
+  color: #334155 !important;
+}
+
+html.light body:has(aside) .text-slate-800 {
+  color: #1e293b !important;
+}
+
+html.light body:has(aside) .text-slate-900 {
+  color: #0f172a !important;
+}
+
+/* ---------------------------------------------------------
+   Dashboard borders
+   --------------------------------------------------------- */
+
+html.light body:has(aside) .border-slate-800 {
+  border-color: #e2e8f0 !important;
+}
+
+html.light body:has(aside) .border-slate-700 {
+  border-color: #cbd5e1 !important;
+}
+
+html.light body:has(aside) .border-slate-600 {
+  border-color: #94a3b8 !important;
+}
+
+html.light body:has(aside) .border-slate-300 {
+  border-color: #cbd5e1 !important;
+}
+
+html.light body:has(aside) .border-slate-200 {
+  border-color: #e2e8f0 !important;
+}
+
+html.light body:has(aside) .border-slate-100 {
+  border-color: #f1f5f9 !important;
+}
+
+/* =========================================================
+   PRIMARY BLUE
+   ========================================================= */
+
+html.light body:has(aside) .text-blue-400 {
+  color: #2563eb !important;
+}
+
+html.light body:has(aside) .text-blue-300 {
+  color: #1d4ed8 !important;
+}
+
+html.light body:has(aside) .text-blue-200 {
+  color: #1e40af !important;
+}
+
+html.light body:has(aside) .text-blue-100 {
+  color: #1e40af !important;
+}
+
+html.light body:has(aside) .bg-blue-950 {
+  background-color: #eff6ff !important;
+}
+
+html.light body:has(aside) .bg-blue-950\/20 {
+  background-color: #eff6ff !important;
+}
+
+html.light body:has(aside) .bg-blue-950\/40 {
+  background-color: #eff6ff !important;
+}
+
+html.light body:has(aside) .border-blue-900 {
+  border-color: #bfdbfe !important;
+}
+
+html.light body:has(aside) .border-blue-800 {
+  border-color: #bfdbfe !important;
+}
+
+/* =========================================================
+   INDIGO
+   ========================================================= */
+
+html.light body:has(aside) .text-indigo-400 {
+  color: #4f46e5 !important;
+}
+
+html.light body:has(aside) .text-indigo-300 {
+  color: #4338ca !important;
+}
+
+html.light body:has(aside) .text-indigo-200 {
+  color: #3730a3 !important;
+}
+
+html.light body:has(aside) .bg-indigo-950 {
+  background-color: #eef2ff !important;
+}
+
+html.light body:has(aside) .bg-indigo-950\/15 {
+  background-color: rgba(238, 242, 255, 0.85) !important;
+}
+
+html.light body:has(aside) .border-indigo-900 {
+  border-color: #c7d2fe !important;
+}
+
+html.light body:has(aside) .border-indigo-800 {
+  border-color: #c7d2fe !important;
+}
+
+/* =========================================================
+   EMERALD
+   ========================================================= */
+
+html.light body:has(aside) .text-emerald-400 {
+  color: #059669 !important;
+}
+
+html.light body:has(aside) .text-emerald-300 {
+  color: #047857 !important;
+}
+
+html.light body:has(aside) .text-emerald-200 {
+  color: #065f46 !important;
+}
+
+html.light body:has(aside) .text-emerald-800 {
+  color: #065f46 !important;
+}
+
+html.light body:has(aside) .text-emerald-900 {
+  color: #064e3b !important;
+}
+
+html.light body:has(aside) .bg-emerald-950 {
+  background-color: #ecfdf5 !important;
+}
+
+html.light body:has(aside) .bg-emerald-950\/20 {
+  background-color: #f0fdf4 !important;
+}
+
+html.light body:has(aside) .bg-emerald-950\/30 {
+  background-color: #ecfdf5 !important;
+}
+
+html.light body:has(aside) .bg-emerald-950\/40 {
+  background-color: #ecfdf5 !important;
+}
+
+html.light body:has(aside) .bg-emerald-950\/60 {
+  background-color: #d1fae5 !important;
+}
+
+html.light body:has(aside) .border-emerald-900 {
+  border-color: #a7f3d0 !important;
+}
+
+html.light body:has(aside) .border-emerald-800 {
+  border-color: #a7f3d0 !important;
+}
+
+html.light body:has(aside) .border-emerald-700 {
+  border-color: #6ee7b7 !important;
+}
+
+/* =========================================================
+   AMBER
+   ========================================================= */
+
+html.light body:has(aside) .text-amber-400 {
+  color: #d97706 !important;
+}
+
+html.light body:has(aside) .text-amber-300 {
+  color: #b45309 !important;
+}
+
+html.light body:has(aside) .text-amber-200 {
+  color: #92400e !important;
+}
+
+html.light body:has(aside) .bg-amber-950 {
+  background-color: #fffbeb !important;
+}
+
+html.light body:has(aside) .bg-amber-950\/30 {
+  background-color: #fffbeb !important;
+}
+
+/* =========================================================
+   ROSE / ERROR
+   ========================================================= */
+
+html.light body:has(aside) .text-rose-400 {
+  color: #e11d48 !important;
+}
+
+html.light body:has(aside) .text-rose-300 {
+  color: #be123c !important;
+}
+
+html.light body:has(aside) .text-rose-200 {
+  color: #9f1239 !important;
+}
+
+html.light body:has(aside) .text-rose-800 {
+  color: #9f1239 !important;
+}
+
+html.light body:has(aside) .bg-rose-950 {
+  background-color: #fff1f2 !important;
+}
+
+html.light body:has(aside) .bg-rose-950\/10,
+html.light body:has(aside) .bg-rose-950\/15,
+html.light body:has(aside) .bg-rose-950\/20,
+html.light body:has(aside) .bg-rose-950\/30,
+html.light body:has(aside) .bg-rose-950\/40,
+html.light body:has(aside) .bg-rose-950\/50,
+html.light body:has(aside) .bg-rose-950\/60 {
+  background-color: #fff1f2 !important;
+}
+
+html.light body:has(aside) .border-rose-900 {
+  border-color: #fecdd3 !important;
+}
+
+html.light body:has(aside) .border-rose-800 {
+  border-color: #fecdd3 !important;
+}
+
+/* =========================================================
+   DASHBOARD CARDS
+   ========================================================= */
+
+html.light body:has(aside) .glass-card {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a;
+}
+
+/* Cards that were hard-coded as dark */
+
+html.light body:has(aside) .bg-slate-900.border-slate-800 {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* =========================================================
+   INPUTS / SELECTS / TEXTAREAS
+   ========================================================= */
+
+html.light body:has(aside) input.bg-slate-900,
+html.light body:has(aside) textarea.bg-slate-900,
+html.light body:has(aside) select.bg-slate-900,
+html.light body:has(aside) input.bg-slate-950,
+html.light body:has(aside) textarea.bg-slate-950,
+html.light body:has(aside) select.bg-slate-950 {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light body:has(aside) input.bg-slate-800,
+html.light body:has(aside) textarea.bg-slate-800,
+html.light body:has(aside) select.bg-slate-800 {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html.light body:has(aside) input::placeholder,
+html.light body:has(aside) textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+html.light body:has(aside) input:focus,
+html.light body:has(aside) textarea:focus,
+html.light body:has(aside) select:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+/* =========================================================
+   LINKS / HOVER STATES
+   ========================================================= */
+
+html.light body:has(aside) .hover\:bg-slate-900:hover {
+  background-color: #f1f5f9 !important;
+}
+
+html.light body:has(aside) .hover\:bg-slate-800:hover {
+  background-color: #e2e8f0 !important;
+}
+
+html.light body:has(aside) .hover\:bg-slate-700:hover {
+  background-color: #cbd5e1 !important;
+}
+
+html.light body:has(aside) .hover\:text-slate-900:hover {
+  color: #0f172a !important;
+}
+
+html.light body:has(aside) .hover\:text-slate-800:hover {
+  color: #1e293b !important;
+}
+
+html.light body:has(aside) .hover\:text-slate-200:hover {
+  color: #1e293b !important;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+html.light body:has(aside) header {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a;
+  box-shadow:
+    0 1px 3px rgba(15, 23, 42, 0.04),
+    0 4px 12px rgba(15, 23, 42, 0.025);
+}
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
+html.light body:has(aside) aside {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+html.light body:has(aside) aside .bg-slate-900\/50 {
+  background: #f8fafc !important;
+}
+
+html.light body:has(aside) aside .text-slate-400 {
+  color: #64748b !important;
+}
+
+html.light body:has(aside) aside .text-slate-500 {
+  color: #64748b !important;
+}
+
+html.light body:has(aside) aside .text-slate-600 {
+  color: #475569 !important;
+}
+
+html.light body:has(aside) aside .text-slate-900 {
+  color: #0f172a !important;
+}
+
+/* =========================================================
+   PORTFOLIO COMPILER
+   ========================================================= */
+
+html.light body:has(aside) .portfolio-compiler {
+  color: #0f172a;
+}
+
+/* Main headings */
+
+html.light body:has(aside) h1.text-slate-100,
+html.light body:has(aside) h2.text-slate-100,
+html.light body:has(aside) h3.text-slate-100,
+html.light body:has(aside) h4.text-slate-100 {
+  color: #0f172a !important;
+}
+
+/* Dark section cards */
+
+html.light body:has(aside) .p-6.rounded-2xl.border-slate-800 {
+  background: #ffffff;
+  border-color: #e2e8f0 !important;
+}
+
+/* URL prefix */
+
+html.light body:has(aside) .bg-slate-800.px-3 {
+  background: #f1f5f9 !important;
+  color: #64748b !important;
+}
+
+/* Portfolio section items */
+
+html.light body:has(aside) .bg-emerald-950\/20 {
+  background: #f0fdf4 !important;
+}
+
+html.light body:has(aside) .bg-slate-900.border-slate-800 {
+  background: #ffffff !important;
+}
+
+html.light body:has(aside) .opacity-60 {
+  opacity: 0.7;
+}
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+html.light body:has(aside) button:disabled {
+  cursor: not-allowed;
+}
+
+html.light body:has(aside) .shadow-lg {
+  --tw-shadow-color: rgba(15, 23, 42, 0.08);
+}
+
+/* =========================================================
+   TABLES
+   ========================================================= */
+
+html.light body:has(aside) table {
+  color: #0f172a;
+}
+
+html.light body:has(aside) th {
+  color: #475569 !important;
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light body:has(aside) td {
+  color: #334155 !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light body:has(aside) tbody tr:hover {
+  background: #f8fafc !important;
+}
+
+/* =========================================================
+   MODALS / DROPDOWNS
+   ========================================================= */
+
+html.light body:has(aside) [role="dialog"],
+html.light body:has(aside) .absolute.bg-slate-900,
+html.light body:has(aside) .absolute.bg-slate-950 {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow:
+    0 20px 40px rgba(15, 23, 42, 0.12),
+    0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+/* =========================================================
+   RECHARTS / SVG
+   ========================================================= */
+
+html.light body:has(aside) .recharts-cartesian-axis-tick-value {
+  fill: #64748b !important;
+}
+
+html.light body:has(aside) .recharts-cartesian-grid line {
+  stroke: #e2e8f0 !important;
+}
+
+html.light body:has(aside) .recharts-tooltip-wrapper {
+  color: #0f172a;
+}
+
+/* =========================================================
+   STATUS BADGES
+   ========================================================= */
+
+html.light body:has(aside) .bg-emerald-500\/10 {
+  background-color: #ecfdf5 !important;
+}
+
+html.light body:has(aside) .bg-emerald-500\/20 {
+  background-color: #d1fae5 !important;
+}
+
+html.light body:has(aside) .bg-blue-500\/10 {
+  background-color: #eff6ff !important;
+}
+
+html.light body:has(aside) .bg-blue-500\/20 {
+  background-color: #dbeafe !important;
+}
+
+html.light body:has(aside) .bg-amber-500\/10 {
+  background-color: #fffbeb !important;
+}
+
+html.light body:has(aside) .bg-rose-500\/10 {
+  background-color: #fff1f2 !important;
+}
+
+/* =========================================================
+   DARK MODE
+   Preserve the application's existing dark appearance.
+   ========================================================= */
+
 html.dark body {
   background-color: #020617 !important;
   color: #f8fafc !important;
 }
 
 html.dark .glass-card {
-  background: rgba(15, 23, 42, 0.75) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37) !important;
+  background: rgba(15, 23, 42, 0.78) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.28) !important;
 }
 
-/* Authentic Resume Sheet */
+/* =========================================================
+   AUTHENTIC RESUME SHEET
+   ========================================================= */
+
 #resume-preview {
   background-color: #ffffff !important;
   color: #0f172a !important;
@@ -45,21 +688,66 @@ html.dark .glass-card {
   color: #0f172a !important;
 }
 
-/* Custom Scrollbar */
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 9999px;
 }
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
 html.dark ::-webkit-scrollbar-thumb {
   background: #334155;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+
+/* =========================================================
+   RESPONSIVE DASHBOARD
+   ========================================================= */
+
+@media (max-width: 1024px) {
+  html.light body:has(aside) aside {
+    width: 220px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  html.light body:has(aside) aside {
+    width: 72px !important;
+  }
+
+  html.light body:has(aside) aside h1,
+  html.light body:has(aside) aside p,
+  html.light body:has(aside) aside nav span,
+  html.light body:has(aside) aside > div > div:nth-child(2) {
+    display: none;
+  }
+
+  html.light body:has(aside) main {
+    padding: 1rem !important;
+  }
+}
+
+@media (max-width: 640px) {
+  html.light body:has(aside) header {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  html.light body:has(aside) header button:first-child {
+    width: 190px !important;
+  }
 }
