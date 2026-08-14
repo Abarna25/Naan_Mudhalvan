@@ -40,26 +40,26 @@ export default function PlacementReadinessPage() {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100 flex items-center space-x-2">
-            <Sparkles className="w-6 h-6 text-emerald-400" />
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
+            <Sparkles className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
             <span>Placement Eligibility Analytics</span>
           </h1>
-          <p className="text-xs text-slate-400">Predictive readiness scoring, tier distribution, and trend forecasting for corporate drives.</p>
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Predictive readiness scoring, tier distribution, and trend forecasting for corporate drives.</p>
         </div>
       </div>
 
       {/* Readiness Tier Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {readinessSegments.map((seg, idx) => (
-          <div key={idx} className="glass-card p-5 rounded-2xl border border-slate-800 space-y-2">
+          <div key={idx} className="glass-card p-5 rounded-2xl space-y-2">
             <div className="flex justify-between items-start">
-              <p className="text-xs text-slate-400 font-semibold leading-tight">{seg.label}</p>
-              <span className="text-xs font-bold" style={{ color: seg.color }}>{seg.pct}</span>
+              <p className="text-xs text-slate-700 dark:text-slate-400 font-bold leading-tight">{seg.label}</p>
+              <span className="text-xs font-black" style={{ color: seg.color }}>{seg.pct}</span>
             </div>
-            <h3 className="text-3xl font-black text-white">{seg.count}</h3>
-            <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+            <h3 className="text-3xl font-black text-slate-900 dark:text-white">{seg.count}</h3>
+            <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
               <div className="h-full rounded-full" style={{ width: seg.pct, backgroundColor: seg.color }}></div>
             </div>
           </div>
@@ -67,8 +67,8 @@ export default function PlacementReadinessPage() {
       </div>
 
       {/* Trend Area Chart */}
-      <div className="glass-card p-6 rounded-2xl border border-slate-800 space-y-3">
-        <h3 className="font-bold text-slate-100">Placement Eligibility Trend (Jan–Jun 2026)</h3>
+      <div className="glass-card p-6 rounded-2xl space-y-3">
+        <h3 className="font-bold text-slate-900 dark:text-slate-100">Placement Eligibility Trend (Jan–Jun 2026)</h3>
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={trendData}>
@@ -82,28 +82,28 @@ export default function PlacementReadinessPage() {
                   <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-              <XAxis dataKey="month" stroke="#94a3b8" tick={{ fontSize: 11 }} />
-              <YAxis stroke="#94a3b8" tick={{ fontSize: 11 }} />
-              <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155' }} />
-              <Area type="monotone" dataKey="eligibleCount" stroke="#10b981" fill="url(#countGrad)" strokeWidth={2} name="Eligible Students" />
-              <Area type="monotone" dataKey="avgScore" stroke="#3b82f6" fill="url(#scoreGrad)" strokeWidth={2} name="Avg Score %" />
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+              <YAxis tick={{ fontSize: 11 }} />
+              <Tooltip />
+              <Area type="monotone" dataKey="eligibleCount" stroke="#10b981" fill="url(#countGrad)" strokeWidth={2.5} name="Eligible Students" />
+              <Area type="monotone" dataKey="avgScore" stroke="#3b82f6" fill="url(#scoreGrad)" strokeWidth={2.5} name="Avg Score %" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* Interactive Filter Table */}
-      <div className="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+      <div className="glass-card p-6 rounded-2xl space-y-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <h3 className="font-bold text-slate-100">Student Readiness Filter</h3>
+          <h3 className="font-bold text-slate-900 dark:text-slate-100">Student Readiness Filter</h3>
           <div className="flex items-center gap-2 flex-wrap">
             <div className="flex items-center space-x-2 text-xs">
-              <label className="text-slate-400">Min Score:</label>
+              <label className="text-slate-700 dark:text-slate-400 font-bold">Min Score:</label>
               <select
                 value={minScore}
                 onChange={e => setMinScore(Number(e.target.value))}
-                className="bg-slate-900 border border-slate-800 rounded-xl px-2 py-1.5 text-slate-200 focus:outline-none"
+                className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-2.5 py-1.5 text-slate-900 dark:text-slate-200 font-bold focus:outline-none"
               >
                 <option value={0}>All Scores</option>
                 <option value={70}>70%+ (Tier-2)</option>
@@ -112,11 +112,11 @@ export default function PlacementReadinessPage() {
               </select>
             </div>
             <div className="flex items-center space-x-2 text-xs">
-              <label className="text-slate-400">Dept:</label>
+              <label className="text-slate-700 dark:text-slate-400 font-bold">Dept:</label>
               <select
                 value={dept}
                 onChange={e => setDept(e.target.value)}
-                className="bg-slate-900 border border-slate-800 rounded-xl px-2 py-1.5 text-slate-200 focus:outline-none"
+                className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-2.5 py-1.5 text-slate-900 dark:text-slate-200 font-bold focus:outline-none"
               >
                 <option value="ALL">All Depts</option>
                 <option value="CSE">CSE</option>
@@ -129,8 +129,8 @@ export default function PlacementReadinessPage() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left text-slate-300">
-            <thead className="bg-slate-900 border-b border-slate-800 text-slate-400 text-[10px] font-semibold uppercase">
+          <table className="w-full text-xs text-left">
+            <thead className="bg-slate-100 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-400 text-[10px] font-bold uppercase">
               <tr>
                 <th className="p-3">Student Name</th>
                 <th className="p-3">Dept</th>
@@ -141,20 +141,20 @@ export default function PlacementReadinessPage() {
                 <th className="p-3">Tier Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {filteredStudents.map((s, idx) => (
-                <tr key={idx} className="hover:bg-slate-800/40 transition-colors">
-                  <td className="p-3 font-semibold text-slate-100">{s.name}</td>
-                  <td className="p-3">{s.dept}</td>
-                  <td className="p-3 font-mono">{s.cgpa}</td>
-                  <td className="p-3 font-bold text-emerald-400">{s.score}%</td>
-                  <td className="p-3">{s.projects}</td>
-                  <td className="p-3">{s.certs}</td>
+                <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                  <td className="p-3 font-bold text-slate-900 dark:text-slate-100">{s.name}</td>
+                  <td className="p-3 font-semibold text-slate-700 dark:text-slate-300">{s.dept}</td>
+                  <td className="p-3 font-mono font-bold text-slate-700 dark:text-slate-300">{s.cgpa}</td>
+                  <td className="p-3 font-black text-emerald-600 dark:text-emerald-400">{s.score}%</td>
+                  <td className="p-3 font-semibold text-slate-700 dark:text-slate-300">{s.projects}</td>
+                  <td className="p-3 font-semibold text-slate-700 dark:text-slate-300">{s.certs}</td>
                   <td className="p-3">
-                    <span className={`text-[10px] px-2 py-0.5 rounded font-semibold border ${
-                      s.score >= 90 ? 'bg-emerald-950 text-emerald-300 border-emerald-800' :
-                      s.score >= 80 ? 'bg-blue-950 text-blue-300 border-blue-800' :
-                      'bg-violet-950 text-violet-300 border-violet-800'
+                    <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold border ${
+                      s.score >= 90 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800' :
+                      s.score >= 80 ? 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 border-blue-300 dark:border-blue-800' :
+                      'bg-violet-100 text-violet-800 dark:bg-violet-950 dark:text-violet-300 border-violet-300 dark:border-violet-800'
                     }`}>
                       {s.tier}
                     </span>
@@ -164,7 +164,7 @@ export default function PlacementReadinessPage() {
             </tbody>
           </table>
           {filteredStudents.length === 0 && (
-            <div className="text-center py-8 text-slate-400 text-xs">No students match current filters</div>
+            <div className="text-center py-8 text-slate-500 text-xs font-medium">No students match current filters</div>
           )}
         </div>
       </div>
