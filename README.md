@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🎓 Naan Mudhalvan (நான் முதல்வன்)
+# Intelligent Career Analytics Platform with Explainable AI and Career Digital Twin
 ### Evidence-Based Student Employability Intelligence & Trust Engine
 
 > **CORE ARCHITECTURE PRINCIPLE: `STUDENT CLAIM ≠ VERIFIED RECORD`**
@@ -217,17 +217,3 @@ Naan_Mudhalvan/
     ├── main.py                   # FastAPI Engine Entrypoint
     └── services/                 # XGBoost, SHAP, and EasyOCR Services
 ```
-
----
-
-## 🤝 Contributing & License
-
-Designed and developed for the **Naan Mudhalvan Skill Mission & Employability Initiative**.
-
-Distributed under the MIT License. See `LICENSE` for details.
-
----
-
-<div align="center">
-  <sub>Built with ❤️ for student career acceleration and institutional academic trust.</sub>
-</div>
