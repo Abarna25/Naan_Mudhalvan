@@ -51,22 +51,22 @@ export default function ExplainableAIEligibilityPage() {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100 flex items-center space-x-2">
-            <Sparkles className="w-6 h-6 text-emerald-400" />
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
+            <Sparkles className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
             <span>Explainable AI (XAI) Employment Eligibility Engine</span>
           </h1>
-          <p className="text-xs text-slate-400">Powered by XGBoost Machine Learning & SHAP (SHapley Additive exPlanations) attribution logic.</p>
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Powered by XGBoost Machine Learning & SHAP (SHapley Additive exPlanations) attribution logic.</p>
         </div>
         <div className="flex items-center space-x-3">
           {evaluationCount > 0 && (
-            <span className="text-xs text-slate-500">Evaluated {evaluationCount} time{evaluationCount > 1 ? 's' : ''}</span>
+            <span className="text-xs text-slate-500 font-semibold">Evaluated {evaluationCount} time{evaluationCount > 1 ? 's' : ''}</span>
           )}
           <button
             onClick={handleReEvaluate}
             disabled={isEvaluating}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs rounded-xl flex items-center space-x-2 shadow-lg shadow-emerald-600/30 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl flex items-center space-x-2 shadow-md transition-all disabled:opacity-60 cursor-pointer"
           >
             <RefreshCw className={`w-4 h-4 ${isEvaluating ? 'animate-spin' : ''}`} />
             <span>{isEvaluating ? 'Running XGBoost...' : 'Re-Evaluate Model'}</span>
@@ -76,35 +76,37 @@ export default function ExplainableAIEligibilityPage() {
 
       {/* Loading Overlay */}
       {isEvaluating && (
-        <div className="glass-card p-6 rounded-2xl border border-emerald-700/40 bg-emerald-950/20 flex items-center space-x-4 animate-pulse">
-          <Brain className="w-8 h-8 text-emerald-400" />
+        <div className="glass-card p-6 rounded-2xl border border-emerald-300 dark:border-emerald-700/40 bg-emerald-50/60 dark:bg-emerald-950/20 flex items-center space-x-4 animate-pulse">
+          <Brain className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
           <div>
-            <p className="font-bold text-emerald-300 text-sm">XGBoost Model Inference Running...</p>
-            <p className="text-xs text-emerald-400/70">Computing SHAP feature attributions using your latest profile data...</p>
+            <p className="font-bold text-emerald-900 dark:text-emerald-300 text-sm">XGBoost Model Inference Running...</p>
+            <p className="text-xs text-emerald-700 dark:text-emerald-400/70 font-medium">Computing SHAP feature attributions using your latest profile data...</p>
           </div>
         </div>
       )}
 
-      {/* Hero Score Cards */}
+      {/* Hero Score Cards (HIGH CONTRAST LIGHT & DARK) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="glass-card p-6 rounded-2xl border border-emerald-500/30 bg-emerald-950/20 text-center space-y-3">
-          <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Overall Eligibility Score</span>
-          <h2 className={`text-5xl font-black text-white transition-all ${isEvaluating ? 'opacity-40 blur-sm' : ''}`}>{scores.eligibility}%</h2>
-          <span className={`inline-block text-xs px-3 py-1 rounded-full font-semibold border ${scores.eligibility >= 85 ? 'bg-emerald-950 text-emerald-300 border-emerald-800' : 'bg-amber-950 text-amber-300 border-amber-800'}`}>
+        <div className="glass-card p-6 rounded-2xl border border-emerald-300 dark:border-emerald-500/30 bg-emerald-50/40 dark:bg-emerald-950/20 text-center space-y-3">
+          <span className="text-xs font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-wider">Overall Eligibility Score</span>
+          <h2 className={`text-5xl font-black text-slate-900 dark:text-white transition-all ${isEvaluating ? 'opacity-40 blur-sm' : ''}`}>{scores.eligibility}%</h2>
+          <span className={`inline-block text-xs px-3 py-1 rounded-full font-bold border ${scores.eligibility >= 85 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800' : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border-amber-300 dark:border-amber-800'}`}>
             {scores.eligibility >= 85 ? 'Tier-1 Placement Ready' : 'Tier-2 Ready'}
           </span>
         </div>
-        <div className="glass-card p-6 rounded-2xl border border-blue-500/30 bg-blue-950/20 text-center space-y-3">
-          <span className="text-xs font-semibold text-blue-400 uppercase tracking-wider">Placement Probability</span>
-          <h2 className={`text-5xl font-black text-white transition-all ${isEvaluating ? 'opacity-40 blur-sm' : ''}`}>{scores.placement}%</h2>
-          <span className="inline-block text-xs bg-blue-950 text-blue-300 border border-blue-800 px-3 py-1 rounded-full font-semibold">
+
+        <div className="glass-card p-6 rounded-2xl border border-blue-300 dark:border-blue-500/30 bg-blue-50/40 dark:bg-blue-950/20 text-center space-y-3">
+          <span className="text-xs font-bold text-blue-800 dark:text-blue-400 uppercase tracking-wider">Placement Probability</span>
+          <h2 className={`text-5xl font-black text-slate-900 dark:text-white transition-all ${isEvaluating ? 'opacity-40 blur-sm' : ''}`}>{scores.placement}%</h2>
+          <span className="inline-block text-xs bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 border border-blue-300 dark:border-blue-800 px-3 py-1 rounded-full font-bold">
             High Confidence Match
           </span>
         </div>
-        <div className="glass-card p-6 rounded-2xl border border-indigo-500/30 bg-indigo-950/20 text-center space-y-3">
-          <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wider">Project Strength Score</span>
-          <h2 className={`text-5xl font-black text-white transition-all ${isEvaluating ? 'opacity-40 blur-sm' : ''}`}>{scores.project}%</h2>
-          <span className="inline-block text-xs bg-indigo-950 text-indigo-300 border border-indigo-800 px-3 py-1 rounded-full font-semibold">
+
+        <div className="glass-card p-6 rounded-2xl border border-indigo-300 dark:border-indigo-500/30 bg-indigo-50/40 dark:bg-indigo-950/20 text-center space-y-3">
+          <span className="text-xs font-bold text-indigo-800 dark:text-indigo-400 uppercase tracking-wider">Project Strength Score</span>
+          <h2 className={`text-5xl font-black text-slate-900 dark:text-white transition-all ${isEvaluating ? 'opacity-40 blur-sm' : ''}`}>{scores.project}%</h2>
+          <span className="inline-block text-xs bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-800 px-3 py-1 rounded-full font-bold">
             Top 5% in Department
           </span>
         </div>
@@ -112,18 +114,15 @@ export default function ExplainableAIEligibilityPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* SHAP Chart */}
-        <div className="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
-          <h3 className="font-bold text-slate-100">SHAP Feature Importance Attributions</h3>
-          <p className="text-xs text-slate-400">Each bar shows the percentage contribution (+ positive / − negative) to your eligibility score.</p>
+        <div className="glass-card p-6 rounded-2xl space-y-4">
+          <h3 className="font-bold text-slate-900 dark:text-slate-100">SHAP Feature Importance Attributions</h3>
+          <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Each bar shows the percentage contribution (+ positive / − negative) to your eligibility score.</p>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart layout="vertical" data={shapData} margin={{ top: 5, right: 20, left: 130, bottom: 5 }}>
-                <XAxis type="number" stroke="#94a3b8" tick={{ fontSize: 10 }} domain={[-20, 25]} />
-                <YAxis dataKey="feature" type="category" stroke="#94a3b8" tick={{ fontSize: 10 }} width={125} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', fontSize: 11 }}
-                  formatter={(val: number) => [`${val > 0 ? '+' : ''}${val}%`, 'SHAP Impact']}
-                />
+                <XAxis type="number" tick={{ fontSize: 10 }} domain={[-20, 25]} />
+                <YAxis dataKey="feature" type="category" tick={{ fontSize: 10 }} width={125} />
+                <Tooltip formatter={(val: number) => [`${val > 0 ? '+' : ''}${val}%`, 'SHAP Impact']} />
                 <Bar dataKey="impact" radius={[0, 4, 4, 0]}>
                   {shapData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.impact > 0 ? '#10b981' : '#f43f5e'} />
@@ -135,15 +134,15 @@ export default function ExplainableAIEligibilityPage() {
         </div>
 
         {/* Radar Chart */}
-        <div className="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
-          <h3 className="font-bold text-slate-100">Competency Radar — 6-Dimension Assessment</h3>
+        <div className="glass-card p-6 rounded-2xl space-y-4">
+          <h3 className="font-bold text-slate-900 dark:text-slate-100">Competency Radar — 6-Dimension Assessment</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart cx="50%" cy="50%" outerRadius="70%" data={RADAR_DATA}>
-                <PolarGrid stroke="#334155" />
-                <PolarAngleAxis dataKey="subject" stroke="#94a3b8" tick={{ fontSize: 10 }} />
+                <PolarGrid />
+                <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10 }} />
                 <Radar name="Score" dataKey="A" stroke="#10b981" fill="#10b981" fillOpacity={0.25} strokeWidth={2} />
-                <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155' }} formatter={(v: number) => [`${v}%`]} />
+                <Tooltip formatter={(v: number) => [`${v}%`]} />
               </RadarChart>
             </ResponsiveContainer>
           </div>
@@ -151,27 +150,27 @@ export default function ExplainableAIEligibilityPage() {
       </div>
 
       {/* Attribution Breakdown Cards */}
-      <div className="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
-        <h3 className="font-bold text-slate-100">XAI Feature Contribution Explanations</h3>
-        <p className="text-xs text-slate-400">Why did the XGBoost model assign your eligibility score? Every decision is explainable:</p>
+      <div className="glass-card p-6 rounded-2xl space-y-4">
+        <h3 className="font-bold text-slate-900 dark:text-slate-100">XAI Feature Contribution Explanations</h3>
+        <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Why did the XGBoost model assign your eligibility score? Every decision is explainable:</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {shapData.map((item, idx) => (
-            <div key={idx} className={`p-4 rounded-xl border space-y-2 ${item.type === 'positive' ? 'bg-slate-900/60 border-slate-800' : 'bg-rose-950/15 border-rose-900/40'}`}>
+            <div key={idx} className={`p-4 rounded-xl border space-y-2 ${item.type === 'positive' ? 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800' : 'bg-rose-50 dark:bg-rose-950/15 border-rose-200 dark:border-rose-900/40'}`}>
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-slate-200 text-sm flex items-center space-x-1.5">
+                <span className="font-bold text-slate-900 dark:text-slate-200 text-sm flex items-center space-x-1.5">
                   {item.type === 'positive'
-                    ? <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                    : <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                    ? <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    : <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
                   }
                   <span>{item.impact > 0 ? '+' : ''}{item.impact}% {item.feature}</span>
                 </span>
-                <span className={`text-[10px] px-2 py-0.5 rounded border font-mono font-bold ${item.type === 'positive' ? 'bg-emerald-950 text-emerald-300 border-emerald-800' : 'bg-rose-950 text-rose-300 border-rose-800'}`}>
+                <span className={`text-[10px] px-2.5 py-0.5 rounded-full border font-mono font-black ${item.type === 'positive' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800' : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border-rose-300 dark:border-rose-800'}`}>
                   {item.impact > 0 ? '+' : ''}{item.impact}%
                 </span>
               </div>
-              <p className="text-xs text-slate-400">{item.detail}</p>
-              <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+              <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">{item.detail}</p>
+              <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
                 <div className={`h-full rounded-full transition-all duration-700 ${item.type === 'positive' ? 'bg-emerald-500' : 'bg-rose-500'}`}
                   style={{ width: `${Math.abs(item.impact) * 4}%` }} />
               </div>
@@ -181,26 +180,26 @@ export default function ExplainableAIEligibilityPage() {
       </div>
 
       {/* Improvement Tips */}
-      <div className="glass-card p-5 rounded-2xl border border-indigo-900/40 bg-indigo-950/15 space-y-3">
-        <h3 className="font-bold text-indigo-300 text-sm flex items-center space-x-2">
-          <TrendingUp className="w-4 h-4" />
+      <div className="glass-card p-5 rounded-2xl border border-indigo-200 dark:border-indigo-900/40 bg-indigo-50/50 dark:bg-indigo-950/15 space-y-3">
+        <h3 className="font-bold text-indigo-900 dark:text-indigo-300 text-sm flex items-center space-x-2">
+          <TrendingUp className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
           <span>Quick Wins to Boost Your Score</span>
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-          <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
-            <p className="font-bold text-slate-200">🔢 Solve 30 More LeetCode</p>
-            <p className="text-slate-400">Reclaim the -8% DSA penalty. Focus on medium-level problems.</p>
-            <p className="text-emerald-400 font-semibold">+8% score boost</p>
+          <div className="p-3.5 bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+            <p className="font-bold text-slate-900 dark:text-slate-200">🔢 Solve 30 More LeetCode</p>
+            <p className="text-slate-600 dark:text-slate-400 font-medium">Reclaim the -8% DSA penalty. Focus on medium-level problems.</p>
+            <p className="text-emerald-600 dark:text-emerald-400 font-extrabold mt-1">+8% score boost</p>
           </div>
-          <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
-            <p className="font-bold text-slate-200">📝 Add Project README Files</p>
-            <p className="text-slate-400">Detailed architecture docs for each project improve documentation score.</p>
-            <p className="text-emerald-400 font-semibold">+6% score boost</p>
+          <div className="p-3.5 bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+            <p className="font-bold text-slate-900 dark:text-slate-200">📝 Add Project README Files</p>
+            <p className="text-slate-600 dark:text-slate-400 font-medium">Detailed architecture docs for each project improve documentation score.</p>
+            <p className="text-emerald-600 dark:text-emerald-400 font-extrabold mt-1">+6% score boost</p>
           </div>
-          <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
-            <p className="font-bold text-slate-200">🏆 Complete NM Advanced Module</p>
-            <p className="text-slate-400">Finishing the AI module adds a verified certification + 2 more SHAP points.</p>
-            <p className="text-emerald-400 font-semibold">+4% score boost</p>
+          <div className="p-3.5 bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+            <p className="font-bold text-slate-900 dark:text-slate-200">🏆 Complete NM Advanced Module</p>
+            <p className="text-slate-600 dark:text-slate-400 font-medium">Finishing the AI module adds a verified certification + 2 more SHAP points.</p>
+            <p className="text-emerald-600 dark:text-emerald-400 font-extrabold mt-1">+4% score boost</p>
           </div>
         </div>
       </div>

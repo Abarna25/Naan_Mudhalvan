@@ -93,19 +93,19 @@ export default function FacultyApprovalsPage() {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100 flex items-center space-x-2">
-            <Award className="w-6 h-6 text-amber-400" />
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
+            <Award className="w-6 h-6 text-amber-500" />
             <span>Portfolio Approval Workflow</span>
           </h1>
-          <p className="text-xs text-slate-400">Review and approve student projects and certifications for portfolio verification.</p>
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Review and approve student projects and certifications for portfolio verification.</p>
         </div>
         <div className="flex items-center space-x-2">
-          <span className="text-xs bg-amber-950 text-amber-300 border border-amber-800 px-3 py-1 rounded-full font-semibold">
+          <span className="text-xs bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-800 px-3 py-1 rounded-full font-bold">
             {pendingCount} Pending Review
           </span>
-          <span className="text-xs bg-emerald-950 text-emerald-300 border border-emerald-800 px-3 py-1 rounded-full font-semibold">
+          <span className="text-xs bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 px-3 py-1 rounded-full font-bold">
             {approvedCount} Approved
           </span>
         </div>
@@ -114,24 +114,24 @@ export default function FacultyApprovalsPage() {
       {/* Filter & Search Bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="relative flex-1">
-          <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-2.5" />
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-3" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by student name or item title..."
-            className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-blue-500"
+            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-slate-900 dark:text-slate-200 font-medium focus:outline-none focus:border-blue-500"
           />
         </div>
-        <div className="flex rounded-xl overflow-hidden border border-slate-800">
+        <div className="flex rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
           {(['ALL', 'PENDING', 'APPROVED', 'REJECTED'] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-3 py-2 text-xs font-semibold transition-colors ${
+              className={`px-3.5 py-2.5 text-xs font-bold transition-colors cursor-pointer ${
                 filter === f
                   ? 'bg-blue-600 text-white'
-                  : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               {f}
@@ -143,10 +143,10 @@ export default function FacultyApprovalsPage() {
       {/* Items List */}
       <div className="space-y-3">
         {filtered.length === 0 && (
-          <div className="glass-card p-12 rounded-2xl border border-slate-800 text-center space-y-3">
-            <Filter className="w-10 h-10 text-slate-600 mx-auto" />
-            <p className="text-slate-400 text-sm font-medium">No items match your filter</p>
-            <button onClick={() => { setFilter('ALL'); setSearchQuery(''); }} className="text-xs text-blue-400 hover:text-blue-300">
+          <div className="glass-card p-12 rounded-2xl text-center space-y-3">
+            <Filter className="w-10 h-10 text-slate-400 mx-auto" />
+            <p className="text-slate-600 dark:text-slate-400 text-sm font-medium">No items match your filter</p>
+            <button onClick={() => { setFilter('ALL'); setSearchQuery(''); }} className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-bold">
               Clear filters
             </button>
           </div>
@@ -157,40 +157,40 @@ export default function FacultyApprovalsPage() {
             key={item.id}
             className={`glass-card p-5 rounded-2xl border transition-all ${
               item.status === 'PENDING'
-                ? 'border-amber-900/50 bg-amber-950/10'
+                ? 'border-amber-300 dark:border-amber-900/50 bg-amber-50/40 dark:bg-amber-950/10'
                 : item.status === 'APPROVED'
-                ? 'border-emerald-900/50 bg-emerald-950/10'
-                : 'border-rose-900/50 bg-rose-950/10 opacity-70'
+                ? 'border-emerald-300 dark:border-emerald-900/50 bg-emerald-50/40 dark:bg-emerald-950/10'
+                : 'border-rose-300 dark:border-rose-900/50 bg-rose-50/40 dark:bg-rose-950/10 opacity-80'
             }`}
           >
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
               <div className="space-y-2 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider border ${
+                  <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider border ${
                     item.type === 'project'
-                      ? 'bg-blue-950 text-blue-300 border-blue-800'
-                      : 'bg-indigo-950 text-indigo-300 border-indigo-800'
+                      ? 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 border-blue-300 dark:border-blue-800'
+                      : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border-indigo-300 dark:border-indigo-800'
                   }`}>
                     {item.type}
                   </span>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider border ${
+                  <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider border ${
                     item.status === 'PENDING'
-                      ? 'bg-amber-950 text-amber-300 border-amber-800'
+                      ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border-amber-300 dark:border-amber-800'
                       : item.status === 'APPROVED'
-                      ? 'bg-emerald-950 text-emerald-300 border-emerald-800'
-                      : 'bg-rose-950 text-rose-300 border-rose-800'
+                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
+                      : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border-rose-300 dark:border-rose-800'
                   }`}>
                     {item.status}
                   </span>
                 </div>
 
-                <h3 className="font-bold text-slate-100 text-sm">{item.itemTitle}</h3>
-                <p className="text-xs text-slate-400">{item.details}</p>
+                <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">{item.itemTitle}</h3>
+                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">{item.details}</p>
 
                 <div className="flex items-center space-x-4 text-xs pt-1">
-                  <span className="text-slate-300 font-medium">{item.studentName}</span>
-                  <span className="text-slate-500 font-mono">{item.naanId}</span>
-                  <span className="text-slate-500 flex items-center space-x-1">
+                  <span className="text-slate-900 dark:text-slate-200 font-bold">{item.studentName}</span>
+                  <span className="text-slate-500 font-mono font-semibold">{item.naanId}</span>
+                  <span className="text-slate-500 flex items-center space-x-1 font-medium">
                     <Clock className="w-3 h-3" />
                     <span>Submitted {item.submittedDate}</span>
                   </span>
@@ -201,14 +201,14 @@ export default function FacultyApprovalsPage() {
                 <div className="flex items-center space-x-2 shrink-0">
                   <button
                     onClick={() => handleReject(item.id)}
-                    className="px-3 py-1.5 bg-rose-950/50 hover:bg-rose-950 text-rose-300 text-xs font-semibold rounded-xl border border-rose-900 flex items-center space-x-1.5 transition-colors"
+                    className="px-3.5 py-2 bg-rose-100 dark:bg-rose-950/50 hover:bg-rose-200 text-rose-800 dark:text-rose-300 text-xs font-bold rounded-xl border border-rose-300 dark:border-rose-900 flex items-center space-x-1.5 transition-colors cursor-pointer"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <X className="w-3.5 h-3.5 text-rose-600" />
                     <span>Reject</span>
                   </button>
                   <button
                     onClick={() => handleApprove(item.id)}
-                    className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-1.5 transition-colors shadow-lg shadow-emerald-600/20"
+                    className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 transition-colors shadow-md cursor-pointer"
                   >
                     <Check className="w-3.5 h-3.5" />
                     <span>Approve</span>
