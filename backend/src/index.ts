@@ -49,6 +49,7 @@ app.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Mount REST API
 app.use('/api/v1', apiRouter);
+app.use('/api', apiRouter);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
