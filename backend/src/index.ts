@@ -51,6 +51,18 @@ app.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/api/v1', apiRouter);
 app.use('/api', apiRouter);
 
+// Welcome / Root Endpoint
+app.get('/', (req, res) => {
+  res.json({
+    status: 'UP',
+    service: 'Naan Mudhalvan Trust Architecture API Engine',
+    message: 'Backend REST API is running successfully.',
+    documentation: '/api/v1/docs',
+    healthCheck: '/health',
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({
