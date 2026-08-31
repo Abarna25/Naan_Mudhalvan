@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { ShieldCheck, Layers, Sparkles, Users, RefreshCw, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { VerificationBadge } from '@/components/trust/VerificationBadge';
+import { API_BASE_URL } from '@/config/api';
 
 const DEFAULT_USERS = [
   { id: '1', name: 'Dr. K. Rajasekaran', email: 'admin@naanmudhalvan.edu', role: 'ADMIN', department: 'Skill Mission', academicIdentity: { verificationStatus: 'VERIFIED' } },
@@ -92,6 +93,8 @@ const DEFAULT_AI_STATUS = {
 };
 
 export default function AdminDashboardPage() {
+  const { user } = useAuthStore();
+  const [activeTab, setActiveTab] = useState<'USERS' | 'LOGS' | 'TRUST' | 'AI_STATUS'>('USERS');
   const [users, setUsers] = useState<any[]>(DEFAULT_USERS);
   const [logs, setLogs] = useState<any[]>(DEFAULT_LOGS);
   const [trustStats, setTrustStats] = useState<any>(DEFAULT_TRUST_STATS);
@@ -104,10 +107,10 @@ export default function AdminDashboardPage() {
       const headers = { Authorization: `Bearer ${token}` };
 
       const [usersRes, logsRes, trustRes, aiRes] = await Promise.all([
-        fetch('http://localhost:5000/api/admin/users', { headers }),
-        fetch('http://localhost:5000/api/admin/audit-logs', { headers }),
-        fetch('http://localhost:5000/api/admin/trust/overview', { headers }),
-        fetch('http://localhost:5000/api/admin/ai-status', { headers }),
+        fetch(`${API_BASE_URL}/api/admin/users`, { headers }),
+        fetch(`${API_BASE_URL}/api/admin/audit-logs`, { headers }),
+        fetch(`${API_BASE_URL}/api/admin/trust/overview`, { headers }),
+        fetch(`${API_BASE_URL}/api/admin/ai-status`, { headers }),
       ]);
 
       const usersJson = await usersRes.json();
@@ -132,7 +135,7 @@ export default function AdminDashboardPage() {
     setUpdatingId(userId);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/api/admin/users/${userId}/role`, {
+      const res = await fetch(`${API_BASE_URL}/api/admin/users/${userId}/role`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

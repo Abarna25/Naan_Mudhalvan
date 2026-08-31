@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { VerificationBadge } from '@/components/trust/VerificationBadge';
 import { useAuthStore } from '@/store/useAuthStore';
+import { API_BASE_URL } from '@/config/api';
 
 interface Skill {
   id: string;
@@ -247,7 +248,7 @@ export default function StudentProfilePage() {
   const fetchProfileData = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/api/student/profile', {
+      const res = await fetch(`${API_BASE_URL}/api/student/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const json = await res.json();
@@ -274,7 +275,7 @@ export default function StudentProfilePage() {
   const handleSaveExtraInfo = async () => {
     try {
       const token = localStorage.getItem('token');
-      await fetch('http://localhost:5000/api/student/profile', {
+      await fetch(`${API_BASE_URL}/api/student/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

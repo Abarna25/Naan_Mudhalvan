@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Award, Clock, CheckCircle2, AlertCircle, HelpCircle } from 'lucide-react';
+import { API_BASE_URL } from '@/config/api';
 
 interface Question {
   id: string;
@@ -33,7 +34,7 @@ export const SkillAssessmentModal: React.FC<SkillAssessmentModalProps> = ({
     setError(null);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/api/student/skills/${studentSkillId}/assessment/start`, {
+      const res = await fetch(`${API_BASE_URL}/api/student/skills/${studentSkillId}/assessment/start`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -61,7 +62,7 @@ export const SkillAssessmentModal: React.FC<SkillAssessmentModalProps> = ({
     try {
       const token = localStorage.getItem('token');
       const answersArray = questions.map((_, idx) => answers[idx] ?? -1);
-      const res = await fetch(`http://localhost:5000/api/student/skills/${studentSkillId}/assessment/submit`, {
+      const res = await fetch(`${API_BASE_URL}/api/student/skills/${studentSkillId}/assessment/submit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

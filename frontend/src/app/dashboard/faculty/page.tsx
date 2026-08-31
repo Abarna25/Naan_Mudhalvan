@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { UserCheck, Award, AlertTriangle, Check, X, Search, ShieldCheck, Clock, FileText, CheckCircle2 } from 'lucide-react';
 import { VerificationBadge } from '@/components/trust/VerificationBadge';
+import { useAuthStore } from '@/store/useAuthStore';
+import { API_BASE_URL } from '@/config/api';
 
 const DEFAULT_ANALYTICS = {
   department: 'Computer Science & Engineering',
@@ -121,8 +123,8 @@ export default function FacultyDashboardPage() {
       const headers = { Authorization: `Bearer ${token}` };
 
       const [analyticsRes, queueRes] = await Promise.all([
-        fetch('http://localhost:5000/api/faculty/analytics', { headers }),
-        fetch('http://localhost:5000/api/faculty/verification-queue', { headers }),
+        fetch(`${API_BASE_URL}/api/faculty/analytics`, { headers }),
+        fetch(`${API_BASE_URL}/api/faculty/verification-queue`, { headers }),
       ]);
 
       const analyticsJson = await analyticsRes.json();
@@ -160,7 +162,7 @@ export default function FacultyDashboardPage() {
     setSubmitting(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/api/faculty/approve', {
+      const res = await fetch(`${API_BASE_URL}/api/faculty/approve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

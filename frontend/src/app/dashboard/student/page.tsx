@@ -23,6 +23,8 @@ import { TrustCenter } from '@/components/trust/TrustCenter';
 import { VerificationBadge } from '@/components/trust/VerificationBadge';
 import { SkillAssessmentModal } from '@/components/skills/SkillAssessmentModal';
 
+import { API_BASE_URL } from '@/config/api';
+
 export default function StudentDashboardPage() {
   const { user } = useAuthStore();
 
@@ -32,7 +34,7 @@ export default function StudentDashboardPage() {
   const fetchTrustData = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/api/student/trust-center', {
+      const res = await fetch(`${API_BASE_URL}/api/student/trust-center`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const json = await res.json();

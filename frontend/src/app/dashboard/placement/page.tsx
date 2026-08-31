@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { Briefcase, Download, TrendingUp, Users, Award, ShieldCheck, CheckCircle2, AlertCircle } from 'lucide-react';
 import { VerificationBadge } from '@/components/trust/VerificationBadge';
+import { useAuthStore } from '@/store/useAuthStore';
+import { API_BASE_URL } from '@/config/api';
 
 const DEFAULT_STATS = {
   totalStudentsCount: 450,
@@ -106,8 +108,8 @@ export default function PlacementDashboardPage() {
       const headers = { Authorization: `Bearer ${token}` };
 
       const [statsRes, candidatesRes] = await Promise.all([
-        fetch('http://localhost:5000/api/placement/dashboard', { headers }),
-        fetch('http://localhost:5000/api/placement/top-candidates', { headers }),
+        fetch(`${API_BASE_URL}/api/placement/dashboard`, { headers }),
+        fetch(`${API_BASE_URL}/api/placement/top-candidates`, { headers }),
       ]);
 
       const statsJson = await statsRes.json();
@@ -131,13 +133,13 @@ export default function PlacementDashboardPage() {
   }, []);
 
   const handleExportCSV = () => {
-    window.open('http://localhost:5000/api/placement/export-csv', '_blank');
+    window.open(`${API_BASE_URL}/api/placement/export-csv`, '_blank');
   };
 
   const handleVerifyClaim = async (claimId: string, action: 'VERIFY' | 'REJECT') => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/api/placement/claims/${claimId}/verify`, {
+      const res = await fetch(`${API_BASE_URL}/api/placement/claims/${claimId}/verify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
